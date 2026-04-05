@@ -1,15 +1,13 @@
 {
-  "name": "Vorthénix",
+  "name": "Vorthénix OS",
   "short_name": "Vorthénix",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#000000",
-  "theme_color": "#000000",
+  "theme_color": "#00ff00",
   "icons": [
     {
-      "src": "https://raw.githubusercontent.com/mrdevorth/Vorth/main/icon.png",
+      "src": "https://raw.githubusercontent.com/MrDeVorth/Vorth/main/icon.png",
       "sizes": "192x192",
       "type": "image/png"
     }
-  ]
-}
