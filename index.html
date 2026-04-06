@@ -7,14 +7,63 @@
     <link rel="manifest" href="manifest.json">
     <style>
         body { background: #000; color: #0f0; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        #terminal { width: 90%; border: 1px solid #0f0; padding: 20px; background: #050505; box-shadow: 0 0 15px #0f0; }
-        h1 { color: #fff; text-shadow: 0 0 5px #0f0; }
+        #terminal { width: 90%; max-width: 400px; border: 1px solid #0f0; padding: 20px; background: #050505; box-shadow: 0 0 15px #0f0; }
+        h1 { color: #fff; text-shadow: 0 0 5px #0f0; font-size: 1.2rem; text-align: center; }
+        input { background: #000; border: 1px solid #0f0; color: #0f0; width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
+        button { background: #0f0; color: #000; border: none; width: 100%; padding: 10px; font-weight: bold; cursor: pointer; }
+        button:hover { background: #fff; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
     <div id="terminal">
         <h1>INSTITUT VORTHÉNIX</h1>
-        <p>> Système Souverain en ligne.</p>
+        
+        <div id="login-section">
+            <p>> Identification requise...</p>
+            <input type="text" id="username" placeholder="Nom d'utilisateur">
+            <input type="password" id="password" placeholder="Clé de sécurité">
+            <button onclick="createAccount()">CRÉER MON ACCÈS</button>
+        </div>
+
+        <div id="user-menu" class="hidden">
+            <p>> Bienvenue, <span id="display-name"></span></p>
+            <p>> Statut : SOUVERAIN</p>
+            <hr style="border: 0.5px solid #0f0;">
+            <button onclick="alert('Accès aux archives de physique...')">ACCÈS AUX ARCHIVES</button>
+            <br><br>
+            <button onclick="logout()" style="background: #a00; color: white;">DÉCONNEXION</button>
+        </div>
     </div>
+
+    <script>
+        // Vérifie si un compte existe déjà au chargement
+        window.onload = function() {
+            const savedUser = localStorage.getItem('vorthenix_user');
+            if (savedUser) {
+                showMenu(savedUser);
+            }
+        };
+
+        function createAccount() {
+            const user = document.getElementById('username').value;
+            if (user) {
+                // Ici on simule la création du fichier cryptographique
+                localStorage.setItem('vorthenix_user', user);
+                showMenu(user);
+            }
+        }
+
+        function showMenu(name) {
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('user-menu').classList.remove('hidden');
+            document.getElementById('display-name').innerText = name;
+        }
+
+        function logout() {
+            localStorage.removeItem('vorthenix_user');
+            location.reload();
+        }
+    </script>
 </body>
 </html>
