@@ -4,128 +4,120 @@
     <meta charset="UTF-8">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vorthénix OS v2.4 - Zéro Absolu</title>
+    <title>Vorthénix ∆≈ v2.6</title>
     <style>
         body { background: #000; color: #0f0; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; touch-action: none; }
-        #terminal { width: 92%; max-width: 460px; border: 1px solid #0f0; padding: 25px; background: rgba(0, 5, 0, 0.98); box-shadow: 0 0 50px rgba(0,255,0,0.2); position: relative; }
-        h1 { color: #fff; text-shadow: 0 0 10px #0f0; font-size: 0.9rem; text-align: center; letter-spacing: 5px; margin: 0 0 10px 0; }
-        .line { border-bottom: 1px solid #0f0; margin: 10px 0; opacity: 0.2; }
-        button { background: #0f0; color: #000; border: none; width: 100%; padding: 18px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; transition: 0.3s; }
-        button:disabled { background: #010; color: #030; }
-        #vorth-canvas { width: 100%; height: 200px; background: #000; border: 1px solid #020; margin: 10px 0; }
-        .status-box { font-size: 0.65rem; background: rgba(0,15,0,0.95); padding: 15px; border-left: 2px solid #0ff; margin: 10px 0; line-height: 1.6; color: #fff; }
-        #timer { font-size: 1.1rem; color: #0ff; text-align: center; height: 25px; font-weight: bold; text-shadow: 0 0 5px #0ff; }
-        .unaire { color: #0ff; font-weight: bold; border-top: 1px solid #033; margin-top: 5px; padding-top: 5px; }
-        #terminal::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%); background-size: 100% 2px; z-index: 100; pointer-events: none; }
+        #terminal { width: 94%; max-width: 500px; border: 1px solid #0ff; padding: 25px; background: #000; box-shadow: 0 0 40px rgba(0,255,255,0.1); position: relative; }
+        h1 { color: #fff; text-shadow: 0 0 10px #0ff; font-size: 0.8rem; text-align: center; letter-spacing: 5px; margin-bottom: 15px; }
+        .line { border-bottom: 1px solid #0ff; margin: 10px 0; opacity: 0.2; }
+        #vorth-canvas { width: 100%; height: 250px; background: #000; border: 1px solid #011; margin: 10px 0; }
+        .status-box { font-size: 0.6rem; background: rgba(0,10,20,0.9); padding: 15px; border: 1px solid #033; margin: 10px 0; color: #0ff; line-height: 1.6; }
+        button { background: #0ff; color: #000; border: none; width: 100%; padding: 18px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; }
+        .res-val { color: #fff; font-weight: bold; }
+        #m-delta { font-size: 0.55rem; color: #066; margin-top: 10px; border-top: 1px solid #022; padding-top: 5px; height: 50px; overflow: hidden; }
+        /* Interface de Résonance */
+        #terminal::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(0, 255, 255, 0) 50%, rgba(0, 255, 255, 0.02) 50%); background-size: 100% 4px; pointer-events: none; }
     </style>
 </head>
 <body>
 
     <div id="terminal">
-        <h1>VORTHÉNIX INSTITUT v2.4</h1>
+        <h1>VORTHÉNIX ∆≈ v2.6</h1>
+        <p style="font-size: 0.5rem; text-align: center; color: #0aa;">CADRE OPÉRATOIRE DE COHÉRENCE SYSTÈME</p>
         <div class="line"></div>
         
-        <p class="status-box" id="main-msg">> PROTOCOLE ZÉRO ABSOLU PRÊT.<br>> EN ATTENTE DE SYNCHRONISATION DE PHASE.</p>
+        <div id="vorth-ui">
+            <canvas id="vorth-canvas" width="600" height="300"></canvas>
+            
+            <div id="timer" style="text-align: center; color: #fff; font-size: 0.8rem; height: 20px;">STATIQUE</div>
+            
+            <button id="run-btn" onclick="engagerJonction()">ENGAGER LA JONCTION (⧬)</button>
 
-        <canvas id="vorth-canvas" width="600" height="240"></canvas>
-        <div id="timer">STASE</div>
+            <div id="results" class="hidden status-box">
+                <p>> RÉSONANCE (∆≈) : <span id="res-delta" class="res-val">--</span></p>
+                <p>> TENUE MATÉRIELLE : <span id="res-tenue" class="res-val">--</span></p>
+                <p>> DISSIPATION (C7) : <span id="res-diss" class="res-val">--</span></p>
+                <p style="border-top: 1px solid #033; margin-top:5px; padding-top:5px;">> MÉMOIRE MATÉRIELLE (𝓜Δ) : ACTIVE</p>
+            </div>
 
-        <button id="run-btn" onclick="startAbsoluteZero()">Lancer l'Impulsion Unaire</button>
-
-        <div id="results" class="hidden">
-            <div class="status-box">
-                <p id="res-vorth">> VORTH (ACTE PHYSIQUE) : --</p>
-                <p id="res-seme">> SÈME (DENSITÉ PURE)  : --</p>
-                <p id="res-stase">> STASE (STABILITÉ)    : --</p>
-                <p id="res-unaire" class="unaire">> ÉQUILIBRE UNAIRE : --</p>
+            <div id="m-delta">
+                <p>[GÉOLOGIE DES FORMES]</p>
+                <div id="stratification"></div>
             </div>
         </div>
-
-        <button onclick="localStorage.clear(); location.reload();" style="background:#200; color:#fff; font-size:0.5rem; margin-top:10px; border:none; padding:5px; cursor:pointer;">RESET NOEUD</button>
     </div>
 
     <script>
-        const VERSION = "2.4";
-        let isTouching = false;
+        const VERSION = "2.6-∆≈";
         const canvas = document.getElementById('vorth-canvas');
-        canvas.addEventListener('touchstart', () => { isTouching = true; });
-        canvas.addEventListener('touchend', () => { isTouching = false; });
+        const ctx = canvas.getContext('2d');
 
-        async function startAbsoluteZero() {
+        function engagerJonction() {
             const btn = document.getElementById('run-btn');
             const timer = document.getElementById('timer');
             btn.disabled = true;
-
-            // Phase de refroidissement (Pause CPU)
-            timer.innerHTML = "REFROIDISSEMENT LOGIQUE...";
-            await new Promise(r => setTimeout(r, 2000));
-
-            timer.innerHTML = "SYNCHRONISATION DE PHASE...";
-            // On attend un cycle d'horloge vierge
-            requestAnimationFrame(() => {
-                executeUnaireScan();
-            });
+            timer.innerHTML = "SÉPARATION... (⊘)";
+            
+            setTimeout(() => {
+                timer.innerHTML = "RÉSONANCE... (⨂)";
+                incarnerFlux();
+            }, 1500);
         }
 
-        async function executeUnaireScan() {
-            const ctx = canvas.getContext('2d');
+        function incarnerFlux() {
             ctx.clearRect(0,0,canvas.width,canvas.height);
-            
             let x = 0;
-            const start = window.performance.now();
-            let measures = [];
-            const fibers = 128;
-            
-            // Étalonnage du coût propre (Self-Perturbation)
-            const selfStart = window.performance.now();
-            ctx.beginPath(); ctx.stroke();
-            const selfCost = window.performance.now() - selfStart;
+            const t0 = window.performance.now();
+            let reseauResonance = [];
 
             function step() {
                 if(x < canvas.width) {
-                    const ts = window.performance.now();
+                    const cycleStart = window.performance.now();
                     
-                    // Injection de micro-pauses pour stabilité thermique
-                    for(let i = 0; i < fibers; i++) {
+                    // Dessin de la membrane de jonction (128 fibres)
+                    for(let i = 0; i < 128; i++) {
                         ctx.beginPath();
                         ctx.lineWidth = 0.2;
-                        ctx.strokeStyle = `rgba(0, 255, 255, ${0.1 + (i/fibers) * 0.5})`;
+                        // Dégradé de résonance Cyan/Blanc
+                        ctx.strokeStyle = `rgba(180, 255, 255, ${0.05 + (i/128) * 0.3})`;
                         
-                        let y1 = 80 + Math.sin(x*0.04 + i*0.04) * (40 + i*0.2);
-                        let y2 = 160 - Math.sin(x*0.04 + i*0.04) * (40 + i*0.2);
+                        // Dynamique unifiée : pas de t+1, juste une forme qui tient
+                        let y1 = 100 + Math.sin(x*0.04 + i*0.03) * (60 + i*0.2);
+                        let y2 = 200 - Math.sin(x*0.04 + i*0.03) * (60 + i*0.2);
                         
-                        if(isTouching) { y1 += Math.random()*10; y2 -= Math.random()*10; }
-
-                        ctx.moveTo(x, y1); ctx.lineTo(x + 5, y1);
-                        ctx.moveTo(x, y2); ctx.lineTo(x + 5, y2);
+                        ctx.moveTo(x, y1); ctx.lineTo(x + 6, y1);
+                        ctx.moveTo(x, y2); ctx.lineTo(x + 6, y2);
                         ctx.stroke();
                     }
                     
-                    x += 5;
-                    // On retire le coût de la mesure elle-même (Unaire)
-                    measures.push((window.performance.now() - ts) - selfCost);
+                    x += 6;
+                    reseauResonance.push(window.performance.now() - cycleStart);
                     requestAnimationFrame(step);
                 } else {
-                    finalize(measures, window.performance.now() - start);
+                    finaliser(reseauResonance, window.performance.now() - t0);
                 }
             }
             step();
         }
 
-        function finalize(measures, realTime) {
-            const vorth = measures.reduce((a,b)=>a+b, 0);
-            const density = (vorth / 40).toFixed(5);
-            const stase = Math.min(99.9, (1 - (Math.abs(vorth - realTime) / realTime)) * 100).toFixed(3);
-            const unaire = (vorth / realTime).toFixed(6);
+        function finaliser(reseau, tempsTotal) {
+            const vorth = reseau.reduce((a,b)=>a+b, 0);
+            const resonance = (vorth / tempsTotal).toFixed(6);
+            const tenue = (100 - (Math.abs(1 - resonance) * 100)).toFixed(3);
+            const dissipation = (tempsTotal - vorth).toFixed(4);
 
             document.getElementById('results').classList.remove('hidden');
-            document.getElementById('res-vorth').innerHTML = `> VORTH (PUR) : ${vorth.toFixed(4)} ms`;
-            document.getElementById('res-seme').innerHTML  = `> SÈME (DENSITÉ) : ${density} Vorth/µm`;
-            document.getElementById('res-stase').innerHTML = `> STASE (PURETÉ) : ${stase}%`;
-            document.getElementById('res-unaire').innerHTML = `> ÉQUILIBRE UNAIRE : ${unaire} Φ`;
+            document.getElementById('res-delta').innerHTML = resonance + " ∆≈";
+            document.getElementById('res-tenue').innerHTML = tenue + " %";
+            document.getElementById('res-diss').innerHTML  = dissipation + " ms (C7)";
             
-            document.getElementById('timer').innerHTML = "ZÉRO ABSOLU ATTEINT";
+            document.getElementById('timer').innerHTML = "JONCTION RÉUSSIE";
             document.getElementById('run-btn').disabled = false;
+
+            // Stratification 𝓜Δ
+            const strat = document.getElementById('stratification');
+            const sig = btoa(resonance).substring(0,8).toUpperCase();
+            strat.innerHTML = `<p>> FORMÉ : ${sig} | TENUE: ${tenue}%</p>` + strat.innerHTML;
         }
     </script>
 </body>
