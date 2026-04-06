@@ -4,182 +4,180 @@
     <meta charset="UTF-8">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vorthénix OS v1.9.1</title>
-    <link rel="manifest" href="manifest.json">
+    <title>Vorthénix OS v2.0</title>
     <style>
         body { background: #000; color: #0f0; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
         #terminal { width: 85%; max-width: 420px; border: 1px solid #0f0; padding: 25px; background: rgba(0, 15, 0, 0.95); box-shadow: 0 0 25px #0f0; position: relative; border-radius: 5px; z-index: 5; }
         h1 { color: #fff; text-shadow: 0 0 10px #0f0; font-size: 1.1rem; text-align: center; margin: 0 0 15px 0; letter-spacing: 2px; }
         .line { border-bottom: 1px solid #0f0; margin: 15px 0; opacity: 0.4; }
-        input { background: #000; border: 1px solid #0f0; color: #fff; width: 100%; padding: 12px; margin: 10px 0; box-sizing: border-box; outline: none; font-size: 1rem; text-align: center; }
-        button { background: #0f0; color: #000; border: none; width: 100%; padding: 14px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; transition: 0.1s; }
+        input { background: #000; border: 1px solid #0f0; color: #fff; width: 100%; padding: 12px; margin: 10px 0; box-sizing: border-box; outline: none; text-align: center; font-size: 1rem; }
+        button { background: #0f0; color: #000; border: none; width: 100%; padding: 14px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; transition: 0.2s; }
         button:active { background: #fff; transform: scale(0.98); }
+        button:disabled { background: #030; color: #060; cursor: not-allowed; }
         .hidden { display: none !important; }
-        #vorth-canvas { width: 100%; height: 120px; border: 1px solid #040; background: #000; margin: 10px 0; display: block; }
+        #vorth-canvas { width: 100%; height: 100px; border: 1px solid #040; background: #000; margin: 10px 0; display: block; }
         .status { font-size: 0.7rem; color: #0f0; margin-bottom: 8px; font-weight: bold; }
-        #stability-meter { height: 4px; background: #300; width: 100%; margin-top: 5px; position: relative; overflow: hidden; }
+        #stability-meter { height: 4px; background: #300; width: 100%; margin-top: 5px; overflow: hidden; }
         #stability-fill { height: 100%; background: #0f0; width: 0%; transition: 0.5s ease-out; }
-        .logout { background: #600; color: #fff; margin-top: 25px; font-size: 0.7rem; opacity: 0.8; }
-        
-        /* Scanline Overlay */
-        #terminal::after { 
-            content: " "; position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03)); 
-            z-index: 10; pointer-events: none; background-size: 100% 2px, 3px 100%; 
-        }
+        #archives { font-size: 0.6rem; color: #888; max-height: 100px; overflow-y: auto; margin-top: 15px; border-top: 1px solid #030; padding-top: 5px; text-align: left; }
+        .chamber-active { color: #f00; animation: blink 0.5s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+        #terminal::after { content: " "; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03)); z-index: 10; pointer-events: none; background-size: 100% 2px, 3px 100%; }
     </style>
 </head>
 <body>
 
     <div id="terminal">
-        <h1>INSTITUT VORTHÉNIX v1.9.1</h1>
+        <h1>VORTHÉNIX INSTITUT v2.0</h1>
         <div class="line"></div>
         
-        <div id="setup-section" class="hidden">
-            <p class="status">> NOEUD VIERGE : INITIALISATION i128i128</p>
-            <input type="text" id="new-username" placeholder="NOM DE L'OPÉRATEUR">
-            <input type="password" id="new-password" placeholder="CLÉ PRIVÉE">
-            <button onclick="handleSetup()">CRÉER MON ACCÈS</button>
-        </div>
-
-        <div id="login-section" class="hidden">
-            <p class="status">> OPÉRATEUR : <span id="user-detected" style="color:#fff"></span></p>
-            <input type="password" id="login-password" placeholder="CLÉ ORTHOSYMÉTRIQUE">
-            <button onclick="handleLogin()">DÉVERROUILLAGE</button>
+        <div id="access-section">
+            <p class="status">> IDENTIFICATION DU NOEUD SOUVERAIN...</p>
+            <input type="password" id="pass" placeholder="CLÉ i128i128">
+            <button onclick="unlock()">ENTRER DANS LA CHAMBRE</button>
         </div>
 
         <div id="user-menu" class="hidden">
-            <p class="status">> ÉQUILIBRE ISOLÉ : <span id="display-name" style="color:#fff"></span></p>
-            <div class="line"></div>
+            <p class="status">> CHAMBRE DE VIDE NUMÉRIQUE : ACTIVE</p>
+            <div id="stability-meter"><div id="stability-fill"></div></div>
             
-            <label style="font-size: 0.7rem; color: #888;">IMPULSION ÉNERGÉTIQUE (eV):</label>
-            <input type="number" id="energy-input" value="128">
-            <button onclick="runVorthSim()">LANCER LA PREUVE PHYSIQUE</button>
+            <canvas id="vorth-canvas" width="350" height="100"></canvas>
             
-            <div id="sim-result" class="hidden">
-                <p style="font-size: 0.6rem; margin: 5px 0 2px 0;">STABILITÉ DU NOEUD :</p>
-                <div id="stability-meter"><div id="stability-fill"></div></div>
-                <canvas id="vorth-canvas" width="350" height="120"></canvas>
-                <p id="calc-result" style="font-size: 0.75rem; color: #fff; background: rgba(0,40,0,0.8); padding: 8px; line-height: 1.2;"></p>
+            <p id="timer-display" style="text-align: center; font-size: 1.2rem; margin: 10px 0; color: #fff; height: 30px;"></p>
+            
+            <button id="run-btn" onclick="startVacuumProcess()">LANCER LE SCAN SOUVERAIN</button>
+            
+            <div id="results" class="hidden" style="font-size: 0.7rem; background: rgba(0,20,0,0.7); padding: 10px; margin-top: 10px; border-left: 2px solid #0f0;">
+                <p id="res-standard">> SCAN BRUT (BRUITÉ) : ---</p>
+                <p id="res-vorth" style="color: #fff;">> SCAN VORTH (ISOLÉ) : ---</p>
+                <p id="res-delta" style="color: #0ff;">> DELTA ISOLATION : ---</p>
             </div>
 
-            <button onclick="logout()" class="logout">RÉINITIALISER LE NOEUD</button>
+            <div id="archives">
+                <p style="color: #0f0; margin-bottom: 5px;">[JOURNAL DES MOMENTS CRÉÉS]</p>
+                <div id="log-content"></div>
+            </div>
+            
+            <button onclick="if(confirm('RESET TOTAL?')) { localStorage.clear(); location.reload(); }" style="background:#400; color:#fff; font-size:0.6rem; margin-top:20px; padding: 5px;">RÉINITIALISER LE NOEUD</button>
         </div>
     </div>
 
     <script>
-        const VER = "1.9.1";
+        const VERSION = "2.0";
 
-        // MOTEUR DE CRYPTAGE AVEC EMPREINTE HARDWARE
-        async function vorthEncrypt(data) {
-            const hwSeed = window.performance.now().toString();
-            let left = "", right = "";
-            const combined = data + hwSeed;
-            const mid = Math.ceil(combined.length / 2);
-            for (let i = 0; i < combined.length; i++) {
-                let val = (combined.charCodeAt(i) * 128) ^ (i + 128);
-                if (i < mid) left += val.toString(16);
-                else right = val.toString(16) + right;
-            }
-            return "vorth_" + left.substring(0,8) + "x" + right.substring(0,8);
-        }
-
+        // Nettoyage automatique au démarrage si nouvelle version
         window.onload = function() {
-            if (localStorage.getItem('vorth_v191') !== VER) {
+            if (localStorage.getItem('vorth_ver_v2') !== VERSION) {
                 localStorage.clear();
-                localStorage.setItem('vorth_v191', VER);
+                localStorage.setItem('vorth_ver_v2', VERSION);
                 location.reload();
-                return;
             }
-            const name = localStorage.getItem('vorth_name');
-            if (name) {
-                document.getElementById('login-section').classList.remove('hidden');
-                document.getElementById('user-detected').innerText = name.toUpperCase();
-            } else {
-                document.getElementById('setup-section').classList.remove('hidden');
-            }
+            loadArchives();
         };
 
-        async function handleSetup() {
-            const n = document.getElementById('new-username').value.trim();
-            const p = document.getElementById('new-password').value;
-            if (n && p) {
-                localStorage.setItem('vorth_name', n);
-                localStorage.setItem('vorth_key', await vorthEncrypt(p));
-                location.reload();
-            }
-        }
-
-        async function handleLogin() {
-            const p = document.getElementById('login-password').value;
-            const s = localStorage.getItem('vorth_key');
-            // Note: vorthEncrypt utilise window.performance.now(), pour le login simple on utilise une logique statique
-            let staticHash = "";
-            for (let i = 0; i < p.length; i++) { staticHash += (p.charCodeAt(i) * 128).toString(16); }
-            
-            // Pour simplifier le test de login dans cette version démo
-            if (p.length > 0) { 
-                document.getElementById('login-section').classList.add('hidden');
+        function unlock() {
+            const p = document.getElementById('pass').value;
+            if(p.length > 0) {
+                document.getElementById('access-section').classList.add('hidden');
                 document.getElementById('user-menu').classList.remove('hidden');
-                document.getElementById('display-name').innerText = localStorage.getItem('vorth_name').toUpperCase();
             }
         }
 
-        function runVorthSim() {
-            const e = document.getElementById('energy-input').value;
-            const resDiv = document.getElementById('sim-result');
+        async function startVacuumProcess() {
+            const btn = document.getElementById('run-btn');
+            const timer = document.getElementById('timer-display');
+            const resDiv = document.getElementById('results');
+            btn.disabled = true;
+            resDiv.classList.add('hidden');
+            
+            // ÉTAPE 1 : Capture du "Bruit Hardware" ambiant
+            const rawStart = window.performance.now();
+            for(let i=0; i<150000; i++) { Math.atan(i); } // Stress CPU test
+            const rawEnd = window.performance.now();
+            const rawWork = (rawEnd - rawStart);
+
+            // ÉTAPE 2 : Chambre de Vide (Stabilisation de la matière)
+            timer.className = "chamber-active";
+            let count = 2;
+            const countdown = setInterval(() => {
+                timer.innerHTML = `T-MINUS ${count}s...`;
+                count--;
+                if(count < 0) {
+                    clearInterval(countdown);
+                    timer.innerHTML = "ISOLATION i128i128";
+                    timer.className = "";
+                    runFinalScan(rawWork);
+                }
+            }, 1000);
+        }
+
+        function runFinalScan(rawWork) {
             const canvas = document.getElementById('vorth-canvas');
             const ctx = canvas.getContext('2d');
-            const resText = document.getElementById('calc-result');
+            const timer = document.getElementById('timer-display');
             const stabFill = document.getElementById('stability-fill');
-
-            resDiv.classList.remove('hidden');
-            ctx.clearRect(0,0,canvas.width,canvas.height);
             
+            ctx.clearRect(0,0,canvas.width,canvas.height);
             let x = 0;
             let deviations = [];
             
             function anim() {
                 if(x < canvas.width) {
-                    const startFrame = window.performance.now();
-                    
+                    const s = window.performance.now();
                     ctx.beginPath(); ctx.strokeStyle = '#0f0'; ctx.lineWidth = 2;
                     ctx.shadowBlur = 5; ctx.shadowColor = '#0f0';
                     
-                    // Orthosymétrie : Flux Haut et Bas
-                    ctx.moveTo(x, 40 + Math.sin(x * 0.1) * (e / 10));
-                    ctx.moveTo(x, 80 - Math.sin(x * 0.1) * (e / 10));
-                    x += 4;
-                    ctx.lineTo(x, 40 + Math.sin(x * 0.1) * (e / 10));
-                    ctx.lineTo(x, 80 - Math.sin(x * 0.1) * (e / 10));
+                    // Orthosymétrie i128i128
+                    ctx.moveTo(x, 35 + Math.sin(x*0.15)*10);
+                    ctx.moveTo(x, 65 - Math.sin(x*0.15)*10);
+                    x += 5;
+                    ctx.lineTo(x, 35 + Math.sin(x*0.15)*10);
+                    ctx.lineTo(x, 65 - Math.sin(x*0.15)*10);
                     ctx.stroke();
-
-                    const endFrame = window.performance.now();
-                    deviations.push(endFrame - startFrame);
                     
+                    deviations.push(window.performance.now() - s);
                     requestAnimationFrame(anim);
                 } else {
-                    const totalWork = deviations.reduce((a, b) => a + b, 0);
-                    const jitter = Math.max(...deviations) - Math.min(...deviations);
-                    const stability = Math.max(0, 100 - (jitter * 60));
+                    const vorthWork = deviations.reduce((a,b)=>a+b, 0);
+                    const delta = Math.abs(rawWork - vorthWork);
+                    const stability = Math.max(0, Math.min(100, 100 - (delta * 2)));
+
+                    // Affichage des preuves
+                    document.getElementById('results').classList.remove('hidden');
+                    document.getElementById('res-standard').innerHTML = `> SCAN BRUT (BRUIT) : ${rawWork.toFixed(4)} ms`;
+                    document.getElementById('res-vorth').innerHTML = `> SCAN VORTH (ISOLÉ) : ${vorthWork.toFixed(4)} ms`;
+                    document.getElementById('res-delta').innerHTML = `> DELTA ISOLATION : ${delta.toFixed(4)} ms`;
                     
                     stabFill.style.width = stability + "%";
-                    stabFill.style.background = stability > 85 ? "#0f0" : (stability > 60 ? "#ff0" : "#f00");
+                    stabFill.style.background = stability > 85 ? "#0f0" : "#f00";
+                    timer.innerHTML = stability > 85 ? "SOUVERAINETÉ ATTEINTE" : "INTERFÉRENCE DÉTECTÉE";
+                    
+                    document.getElementById('run-btn').disabled = false;
 
-                    // Génération d'un Hash unique basé sur le travail physique du CPU
-                    const physicalHash = btoa(totalWork + e).substring(0,10).toUpperCase();
-                    
-                    resText.innerHTML = `> SIGNATURE : V-${physicalHash}<br>> TRAVAIL CPU : ${totalWork.toFixed(4)} ms<br>> STABILITÉ : ${stability.toFixed(1)}%<br>> ÉTAT : ORTHOSYMÉTRIQUE.`;
-                    
-                    if(stability < 75) {
-                        resText.innerHTML += "<br><span style='color:#f00; font-size: 0.6rem;'>[ALERTE : BRUIT HARDWARE DÉTECTÉ]</span>";
-                    }
+                    // ARCHIVAGE
+                    saveToArchives(vorthWork, stability);
                 }
             }
             anim();
         }
 
-        function logout() { if(confirm("RÉINITIALISER TOUT ?")) { localStorage.clear(); location.reload(); } }
+        function saveToArchives(work, stab) {
+            const sig = "V-" + btoa(work).substring(0,8).toUpperCase();
+            const time = new Date().toLocaleTimeString();
+            const entry = { time, sig, stab: stab.toFixed(1) };
+            
+            let logs = JSON.parse(localStorage.getItem('vorth_logs') || "[]");
+            logs.unshift(entry);
+            if(logs.length > 5) logs.pop(); // Garde les 5 derniers
+            localStorage.setItem('vorth_logs', JSON.stringify(logs));
+            loadArchives();
+        }
+
+        function loadArchives() {
+            const logs = JSON.parse(localStorage.getItem('vorth_logs') || "[]");
+            const container = document.getElementById('log-content');
+            container.innerHTML = logs.map(l => `<p>[${l.time}] SIG: ${l.sig} | STAB: ${l.stab}%</p>`).join('');
+        }
     </script>
 </body>
 </html>
