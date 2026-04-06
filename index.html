@@ -4,150 +4,128 @@
     <meta charset="UTF-8">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vorthénix OS v2.3</title>
+    <title>Vorthénix OS v2.4 - Zéro Absolu</title>
     <style>
         body { background: #000; color: #0f0; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; touch-action: none; }
-        #terminal { width: 90%; max-width: 450px; border: 1px solid #0f0; padding: 20px; background: rgba(0, 5, 0, 0.98); box-shadow: 0 0 40px rgba(0,255,0,0.15); border-radius: 2px; position: relative; }
-        h1 { color: #fff; text-shadow: 0 0 8px #0f0; font-size: 0.9rem; text-align: center; letter-spacing: 4px; margin: 0 0 10px 0; }
+        #terminal { width: 92%; max-width: 460px; border: 1px solid #0f0; padding: 25px; background: rgba(0, 5, 0, 0.98); box-shadow: 0 0 50px rgba(0,255,0,0.2); position: relative; }
+        h1 { color: #fff; text-shadow: 0 0 10px #0f0; font-size: 0.9rem; text-align: center; letter-spacing: 5px; margin: 0 0 10px 0; }
         .line { border-bottom: 1px solid #0f0; margin: 10px 0; opacity: 0.2; }
-        button { background: #0f0; color: #000; border: none; width: 100%; padding: 16px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; }
-        button:disabled { background: #020; color: #040; }
-        #vorth-canvas { width: 100%; height: 180px; background: #000; border: 1px solid #010; margin: 10px 0; cursor: crosshair; }
-        .status-box { font-size: 0.6rem; background: rgba(0,20,0,0.9); padding: 12px; border-left: 2px solid #0f0; margin: 10px 0; line-height: 1.5; color: #fff; }
-        #timer { font-size: 1rem; color: #0f0; text-align: center; height: 20px; font-weight: bold; letter-spacing: 2px; }
-        #archives { font-size: 0.55rem; color: #444; max-height: 60px; overflow-y: auto; border-top: 1px solid #020; padding-top: 5px; }
-        .highlight { color: #0ff; text-shadow: 0 0 5px #0ff; }
-        #terminal::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%); background-size: 100% 3px; z-index: 100; pointer-events: none; }
+        button { background: #0f0; color: #000; border: none; width: 100%; padding: 18px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; transition: 0.3s; }
+        button:disabled { background: #010; color: #030; }
+        #vorth-canvas { width: 100%; height: 200px; background: #000; border: 1px solid #020; margin: 10px 0; }
+        .status-box { font-size: 0.65rem; background: rgba(0,15,0,0.95); padding: 15px; border-left: 2px solid #0ff; margin: 10px 0; line-height: 1.6; color: #fff; }
+        #timer { font-size: 1.1rem; color: #0ff; text-align: center; height: 25px; font-weight: bold; text-shadow: 0 0 5px #0ff; }
+        .unaire { color: #0ff; font-weight: bold; border-top: 1px solid #033; margin-top: 5px; padding-top: 5px; }
+        #terminal::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%); background-size: 100% 2px; z-index: 100; pointer-events: none; }
     </style>
 </head>
 <body>
 
     <div id="terminal">
-        <h1>VORTHÉNIX INSTITUT v2.3</h1>
+        <h1>VORTHÉNIX INSTITUT v2.4</h1>
         <div class="line"></div>
         
-        <p class="status-box">> CONSCIENCE MATÉRIELLE INITIALISÉE.<br>> VORTH/SÈME : EN ATTENTE D'IMPULSION.</p>
+        <p class="status-box" id="main-msg">> PROTOCOLE ZÉRO ABSOLU PRÊT.<br>> EN ATTENTE DE SYNCHRONISATION DE PHASE.</p>
 
-        <canvas id="vorth-canvas" width="500" height="200"></canvas>
+        <canvas id="vorth-canvas" width="600" height="240"></canvas>
         <div id="timer">STASE</div>
 
-        <button id="run-btn" onclick="runAtomicScan()">Lancer l'Impulsion Atomique</button>
+        <button id="run-btn" onclick="startAbsoluteZero()">Lancer l'Impulsion Unaire</button>
 
         <div id="results" class="hidden">
             <div class="status-box">
-                <p id="res-vorth">> VORTH (ACTION) : --</p>
-                <p id="res-seme">> SÈME (INFO)   : --</p>
-                <p id="res-stase">> STASE (SOLIDITÉ) : --</p>
-                <p id="res-speed" class="highlight">> VITESSE DE CRÉATION : --</p>
+                <p id="res-vorth">> VORTH (ACTE PHYSIQUE) : --</p>
+                <p id="res-seme">> SÈME (DENSITÉ PURE)  : --</p>
+                <p id="res-stase">> STASE (STABILITÉ)    : --</p>
+                <p id="res-unaire" class="unaire">> ÉQUILIBRE UNAIRE : --</p>
             </div>
         </div>
 
-        <div id="archives">
-            <p style="color:#050">[JOURNAL SOUVERAIN]</p>
-            <div id="log-list"></div>
-        </div>
+        <button onclick="localStorage.clear(); location.reload();" style="background:#200; color:#fff; font-size:0.5rem; margin-top:10px; border:none; padding:5px; cursor:pointer;">RESET NOEUD</button>
     </div>
 
     <script>
-        const VERSION = "2.3";
+        const VERSION = "2.4";
         let isTouching = false;
-        let touchY = 0;
-
-        // Capteurs tactiles pour fusion Humain-Machine
         const canvas = document.getElementById('vorth-canvas');
-        canvas.addEventListener('touchstart', (e) => { isTouching = true; touchY = e.touches[0].clientY; });
+        canvas.addEventListener('touchstart', () => { isTouching = true; });
         canvas.addEventListener('touchend', () => { isTouching = false; });
 
-        window.onload = () => {
-            if (localStorage.getItem('vorth_v23') !== VERSION) {
-                localStorage.clear();
-                localStorage.setItem('vorth_v23', VERSION);
-            }
-            updateLogs();
-        };
-
-        async function runAtomicScan() {
+        async function startAbsoluteZero() {
             const btn = document.getElementById('run-btn');
             const timer = document.getElementById('timer');
             btn.disabled = true;
 
-            timer.innerHTML = "VIDE NUMÉRIQUE...";
-            let count = 2;
-            const cd = setInterval(() => {
-                timer.innerHTML = `T-MINUS ${count}s`;
-                if(count-- <= 0) {
-                    clearInterval(cd);
-                    timer.innerHTML = "ÉMANATION VORTH...";
-                    executeVorthScan();
-                }
-            }, 1000);
+            // Phase de refroidissement (Pause CPU)
+            timer.innerHTML = "REFROIDISSEMENT LOGIQUE...";
+            await new Promise(r => setTimeout(r, 2000));
+
+            timer.innerHTML = "SYNCHRONISATION DE PHASE...";
+            // On attend un cycle d'horloge vierge
+            requestAnimationFrame(() => {
+                executeUnaireScan();
+            });
         }
 
-        async function executeVorthScan() {
+        async function executeUnaireScan() {
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0,0,canvas.width,canvas.height);
             
             let x = 0;
-            let start = window.performance.now();
-            let fiberWork = [];
+            const start = window.performance.now();
+            let measures = [];
             const fibers = 128;
+            
+            // Étalonnage du coût propre (Self-Perturbation)
+            const selfStart = window.performance.now();
+            ctx.beginPath(); ctx.stroke();
+            const selfCost = window.performance.now() - selfStart;
 
             function step() {
                 if(x < canvas.width) {
-                    let ts = window.performance.now();
+                    const ts = window.performance.now();
                     
+                    // Injection de micro-pauses pour stabilité thermique
                     for(let i = 0; i < fibers; i++) {
                         ctx.beginPath();
-                        ctx.lineWidth = 0.3;
-                        // Orthosymétrie atomique
-                        ctx.strokeStyle = `rgba(0, 255, 0, ${0.1 + (i/fibers) * 0.4})`;
+                        ctx.lineWidth = 0.2;
+                        ctx.strokeStyle = `rgba(0, 255, 255, ${0.1 + (i/fibers) * 0.5})`;
                         
-                        // Si l'opérateur touche l'écran, on crée une distorsion thermique
-                        let interference = isTouching ? Math.random() * 20 : 0;
+                        let y1 = 80 + Math.sin(x*0.04 + i*0.04) * (40 + i*0.2);
+                        let y2 = 160 - Math.sin(x*0.04 + i*0.04) * (40 + i*0.2);
                         
-                        let y1 = 60 + Math.sin(x*0.05 + i*0.05) * (30 + i*0.3) + interference;
-                        let y2 = 140 - Math.sin(x*0.05 + i*0.05) * (30 + i*0.3) - interference;
-                        
-                        ctx.moveTo(x, y1); ctx.lineTo(x + 4, y1);
-                        ctx.moveTo(x, y2); ctx.lineTo(x + 4, y2);
+                        if(isTouching) { y1 += Math.random()*10; y2 -= Math.random()*10; }
+
+                        ctx.moveTo(x, y1); ctx.lineTo(x + 5, y1);
+                        ctx.moveTo(x, y2); ctx.lineTo(x + 5, y2);
                         ctx.stroke();
                     }
                     
-                    x += 4;
-                    fiberWork.push(window.performance.now() - ts);
+                    x += 5;
+                    // On retire le coût de la mesure elle-même (Unaire)
+                    measures.push((window.performance.now() - ts) - selfCost);
                     requestAnimationFrame(step);
                 } else {
-                    finalize(fiberWork, window.performance.now() - start);
+                    finalize(measures, window.performance.now() - start);
                 }
             }
             step();
         }
 
-        function finalize(workArray, totalTime) {
-            const totalWork = workArray.reduce((a,b)=>a+b, 0);
-            const fiberCount = workArray.length * 128;
-            const velocity = (fiberCount / totalWork).toFixed(2); // Fibres par ms
-            const density = (totalWork / 50).toFixed(4); // Solidité du moment
+        function finalize(measures, realTime) {
+            const vorth = measures.reduce((a,b)=>a+b, 0);
+            const density = (vorth / 40).toFixed(5);
+            const stase = Math.min(99.9, (1 - (Math.abs(vorth - realTime) / realTime)) * 100).toFixed(3);
+            const unaire = (vorth / realTime).toFixed(6);
 
             document.getElementById('results').classList.remove('hidden');
-            document.getElementById('res-vorth').innerHTML = `> VORTH (TRAVAIL CPU) : ${totalWork.toFixed(4)} ms`;
-            document.getElementById('res-seme').innerHTML  = `> SÈME (DENSITÉ)      : ${density} Vorth/µm`;
-            document.getElementById('res-stase').innerHTML = `> STASE (SOLIDITÉ)   : ${((1 - (totalWork/totalTime)) * 100).toFixed(2)}%`;
-            document.getElementById('res-speed').innerHTML = `> VITESSE DE CRÉATION : ${velocity} Fibres/ms`;
+            document.getElementById('res-vorth').innerHTML = `> VORTH (PUR) : ${vorth.toFixed(4)} ms`;
+            document.getElementById('res-seme').innerHTML  = `> SÈME (DENSITÉ) : ${density} Vorth/µm`;
+            document.getElementById('res-stase').innerHTML = `> STASE (PURETÉ) : ${stase}%`;
+            document.getElementById('res-unaire').innerHTML = `> ÉQUILIBRE UNAIRE : ${unaire} Φ`;
             
-            document.getElementById('timer').innerHTML = "STASE ATTEINTE";
+            document.getElementById('timer').innerHTML = "ZÉRO ABSOLU ATTEINT";
             document.getElementById('run-btn').disabled = false;
-
-            const sig = "V" + btoa(density).substring(0,6).toUpperCase();
-            let logs = JSON.parse(localStorage.getItem('vorth_logs_23') || "[]");
-            logs.unshift({t: new Date().toLocaleTimeString(), s: sig, v: velocity});
-            localStorage.setItem('vorth_logs_23', JSON.stringify(logs.slice(0,5)));
-            updateLogs();
-        }
-
-        function updateLogs() {
-            const logs = JSON.parse(localStorage.getItem('vorth_logs_23') || "[]");
-            document.getElementById('log-list').innerHTML = logs.map(l => `<p>[${l.t}] SIG: ${l.s} | VEL: ${l.v} F/ms</p>`).join('');
         }
     </script>
 </body>
