@@ -2,105 +2,79 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Vorthénix OS</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#000000">
     <style>
-        body { 
-            background: #000; color: #0f0; font-family: 'Courier New', monospace; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            height: 100vh; margin: 0; overflow: hidden;
-        }
-        #terminal { 
-            width: 90%; max-width: 450px; border: 1px solid #0f0; padding: 25px; 
-            background: rgba(5, 5, 5, 0.9); box-shadow: 0 0 20px rgba(0, 255, 0, 0.2); 
-            position: relative; z-index: 5;
-        }
-        h1 { color: #fff; text-shadow: 0 0 8px #0f0; font-size: 1.2rem; text-align: center; letter-spacing: 2px; }
-        .vorth-line { border-bottom: 1px solid #0f0; margin: 15px 0; opacity: 0.5; }
-        input { 
-            background: #000; border: 1px solid #0f0; color: #0f0; width: 100%; 
-            padding: 12px; margin: 10px 0; box-sizing: border-box; outline: none; font-family: monospace;
-        }
-        button { 
-            background: #0f0; color: #000; border: none; width: 100%; padding: 12px; 
-            font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase;
-        }
-        .hidden { display: none; }
-        .status-msg { font-size: 0.7rem; color: #0a0; margin-bottom: 10px; }
-        #vorth-canvas { width: 100%; height: 100px; border: 1px solid #030; background: #010; margin: 10px 0; display: block; }
-        .logout-btn { background: #600; color: #eee; margin-top: 20px; font-size: 0.7rem; }
-        
-        #terminal::before {
-            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 10; background-size: 100% 2px, 3px 100%; pointer-events: none;
-        }
+        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+        #terminal { width: 85%; max-width: 420px; border: 1px solid #0f0; padding: 25px; background: rgba(0, 15, 0, 0.95); box-shadow: 0 0 20px #0f0; position: relative; border-radius: 5px; }
+        h1 { color: #fff; text-shadow: 0 0 10px #0f0; font-size: 1.2rem; text-align: center; margin: 0 0 20px 0; letter-spacing: 2px; }
+        .line { border-bottom: 1px solid #0f0; margin: 15px 0; opacity: 0.4; }
+        input { background: #000; border: 1px solid #0f0; color: #fff; width: 100%; padding: 12px; margin: 10px 0; box-sizing: border-box; outline: none; font-size: 1rem; }
+        button { background: #0f0; color: #000; border: none; width: 100%; padding: 14px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; transition: 0.2s; }
+        button:active { background: #fff; transform: scale(0.98); }
+        .hidden { display: none !important; }
+        #vorth-canvas { width: 100%; height: 100px; border: 1px solid #040; background: #000; margin: 15px 0; display: block; }
+        .status { font-size: 0.75rem; color: #0f0; margin-bottom: 8px; font-weight: bold; }
+        .logout { background: #600; color: #fff; margin-top: 25px; font-size: 0.7rem; opacity: 0.8; }
+        #terminal::after { content: " "; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03)); z-index: 2; pointer-events: none; background-size: 100% 2px, 3px 100%; }
     </style>
 </head>
 <body>
 
     <div id="terminal">
-        <h1>INSTITUT VORTHÉNIX v1.2</h1>
-        <div class="vorth-line"></div>
+        <h1>INSTITUT VORTHÉNIX v1.5</h1>
+        <div class="line"></div>
         
         <div id="setup-section" class="hidden">
-            <p>> INITIALISATION SOUVERAINE</p>
-            <p class="status-msg">En attente de nouveaux paramètres i128...</p>
+            <p class="status">> INITIALISATION SOUVERAINE i128</p>
             <input type="text" id="new-username" placeholder="NOM DE L'OPÉRATEUR">
-            <input type="password" id="new-password" placeholder="CLÉ PRIVÉE i128">
-            <button onclick="handleSetup()">CRÉER MON ACCÈS</button>
+            <input type="password" id="new-password" placeholder="CLÉ PRIVÉE">
+            <button onclick="handleSetup()">GÉNÉRER L'ACCÈS</button>
         </div>
 
         <div id="login-section" class="hidden">
-            <p>> OPÉRATEUR : <span id="user-detected" style="color:#fff"></span></p>
-            <p class="status-msg">Signature détectée. Entrez votre clé.</p>
-            <input type="password" id="login-password" placeholder="VOTRE CLÉ SECRÈTE">
+            <p class="status">> OPÉRATEUR DÉTECTÉ : <span id="user-detected" style="color:#fff"></span></p>
+            <input type="password" id="login-password" placeholder="ENTREZ VOTRE CLÉ">
             <button onclick="handleLogin()">DÉVERROUILLER</button>
         </div>
 
         <div id="user-menu" class="hidden">
-            <p style="color: #fff;">> ACCÈS : <span id="display-name"></span></p>
-            <p class="status-msg">> MODULE ÉNERGÉTIQUE PRÊT</p>
-            <div class="vorth-line"></div>
-            
-            <label style="font-size: 0.7rem;">IMPULSION (eV):</label>
+            <p class="status">> ACCÈS SOUVERAIN : <span id="display-name" style="color:#fff"></span></p>
+            <div class="line"></div>
+            <label style="font-size: 0.7rem; color: #aaa;">PUISSANCE D'IMPULSION (i128):</label>
             <input type="number" id="energy-input" value="128">
-            
-            <button onclick="runVorthSim()">LANCER SIMULATION</button>
-            
-            <div id="sim-result" style="margin-top:10px; font-size: 0.7rem;" class="hidden">
-                <canvas id="vorth-canvas" width="300" height="100"></canvas>
-                <p id="calc-result" style="color: #fff;"></p>
+            <button onclick="runVorthSim()">LANCER LA PREUVE</button>
+            <div id="sim-result" class="hidden">
+                <canvas id="vorth-canvas" width="350" height="100"></canvas>
+                <p id="calc-result" style="font-size: 0.8rem; color: #fff; background: rgba(0,50,0,0.5); padding: 5px;"></p>
             </div>
-
-            <button onclick="logout()" class="logout-btn">RÉINITIALISER LE NOEUD</button>
+            <button onclick="logout()" class="logout">RÉINITIALISER LE NOEUD</button>
         </div>
     </div>
 
     <script>
-        const APP_VERSION = "1.2"; // Change ceci force un reset complet
+        const CURRENT_VER = "1.5";
 
-        // MOTEUR i128i128
+        // MOTEUR DE CRYPTAGE VORTH
         async function vorthEncrypt(data) {
-            let hash = "";
-            const shift = 128; 
+            let h = "";
             for (let i = 0; i < data.length; i++) {
-                hash += Math.abs((data.charCodeAt(i) * shift) ^ (i + 128)).toString(16);
+                // Algorithme i128
+                h += Math.abs((data.charCodeAt(i) * 128) ^ (i + 128)).toString(16);
             }
-            return "v128_" + hash;
+            return "v128_s" + h;
         }
 
         window.onload = function() {
-            // SÉCURITÉ DE VERSION : Si vieux compte détecté, on purge tout
-            if (localStorage.getItem('vorth_ver') !== APP_VERSION) {
+            // Nettoyage automatique si version obsolète
+            if (localStorage.getItem('vorth_ver') !== CURRENT_VER) {
                 localStorage.clear();
-                localStorage.setItem('vorth_ver', APP_VERSION);
+                localStorage.setItem('vorth_ver', CURRENT_VER);
                 location.reload();
                 return;
             }
-
             const name = localStorage.getItem('vorth_name');
             if (name) {
                 document.getElementById('login-section').classList.remove('hidden');
@@ -111,62 +85,55 @@
         };
 
         async function handleSetup() {
-            const name = document.getElementById('new-username').value;
-            const pass = document.getElementById('new-password').value;
-            if (name && pass) {
-                const enc = await vorthEncrypt(pass);
-                localStorage.setItem('vorth_name', name);
-                localStorage.setItem('vorth_key', enc);
+            const n = document.getElementById('new-username').value.trim();
+            const p = document.getElementById('new-password').value;
+            if (n && p) {
+                localStorage.setItem('vorth_name', n);
+                localStorage.setItem('vorth_key', await vorthEncrypt(p));
                 location.reload();
             }
         }
 
         async function handleLogin() {
-            const pass = document.getElementById('login-password').value;
-            const saved = localStorage.getItem('vorth_key');
-            const test = await vorthEncrypt(pass);
-            
-            if (test === saved) {
+            const p = document.getElementById('login-password').value;
+            const s = localStorage.getItem('vorth_key');
+            if (await vorthEncrypt(p) === s) {
                 document.getElementById('login-section').classList.add('hidden');
                 document.getElementById('user-menu').classList.remove('hidden');
                 document.getElementById('display-name').innerText = localStorage.getItem('vorth_name').toUpperCase();
-            } else {
-                alert("SIGNATURE REFUSÉE.");
-            }
+            } else { alert("ACCÈS REFUSÉ : SIGNATURE INCORRECTE"); }
         }
 
         function runVorthSim() {
-            const energy = document.getElementById('energy-input').value;
-            const resDiv = document.getElementById('sim-result');
-            const canvas = document.getElementById('vorth-canvas');
-            const ctx = canvas.getContext('2d');
-            const resText = document.getElementById('calc-result');
-
-            resDiv.classList.remove('hidden');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const e = document.getElementById('energy-input').value;
+            document.getElementById('sim-result').classList.remove('hidden');
+            const c = document.getElementById('vorth-canvas');
+            const ctx = c.getContext('2d');
+            ctx.clearRect(0,0,c.width,c.height);
             let x = 0;
-
-            function animate() {
-                if (x < canvas.width) {
-                    ctx.beginPath(); ctx.strokeStyle = '#0f0'; ctx.lineWidth = 2;
-                    ctx.moveTo(x, 50 + Math.sin(x * 0.1) * (energy/10));
-                    x += 3;
-                    ctx.lineTo(x, 50 + Math.sin(x * 0.1) * (energy/10));
+            
+            function anim() {
+                if(x < c.width) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#0f0';
+                    ctx.lineWidth = 2;
+                    ctx.shadowBlur = 5;
+                    ctx.shadowColor = '#0f0';
+                    // Équation de mouvement énergétique
+                    ctx.moveTo(x, 50 + Math.sin(x * 0.1) * (e / 8));
+                    x += 4;
+                    ctx.lineTo(x, 50 + Math.sin(x * 0.1) * (e / 8));
                     ctx.stroke();
-                    requestAnimationFrame(animate);
+                    requestAnimationFrame(anim);
                 } else {
-                    resText.innerHTML = `> CRÉATION VALIDÉE.<br>> MOMENT i128 : ${(energy * 1.128).toFixed(4)} V/os.`;
+                    const result = (e * 1.128).toFixed(4);
+                    document.getElementById('calc-result').innerHTML = "> MOMENT CRÉÉ : " + result + " Vorth-Units<br>> STABILITÉ : 100% (SOUVERAIN)";
                 }
             }
-            animate();
+            anim();
         }
 
-        function logout() {
-            if(confirm("SUPPRIMER TOUTES LES DONNÉES LOCALES ?")) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
+        function logout() { if(confirm("Voulez-vous vraiment réinitialiser ce nœud ?")) { localStorage.clear(); location.reload(); } }
     </script>
 </body>
 </html>
