@@ -17,7 +17,7 @@
             background: rgba(5, 5, 5, 0.9); box-shadow: 0 0 20px rgba(0, 255, 0, 0.2); 
             position: relative; z-index: 5;
         }
-        h1 { color: #fff; text-shadow: 0 0 8px #0f0; font-size: 1.4rem; text-align: center; letter-spacing: 2px; }
+        h1 { color: #fff; text-shadow: 0 0 8px #0f0; font-size: 1.2rem; text-align: center; letter-spacing: 2px; }
         .vorth-line { border-bottom: 1px solid #0f0; margin: 15px 0; opacity: 0.5; }
         input { 
             background: #000; border: 1px solid #0f0; color: #0f0; width: 100%; 
@@ -28,15 +28,9 @@
             font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase;
         }
         .hidden { display: none; }
-        .status-msg { font-size: 0.75rem; color: #0a0; margin-bottom: 10px; }
-        
-        /* Zone Graphique */
-        #vorth-canvas { 
-            width: 100%; height: 100px; border: 1px solid #030; background: #010; margin: 10px 0;
-        }
-
-        .logout-btn { background: #600; color: #eee; margin-top: 20px; font-size: 0.8rem; }
-        
+        .status-msg { font-size: 0.7rem; color: #0a0; margin-bottom: 10px; }
+        #vorth-canvas { width: 100%; height: 100px; border: 1px solid #030; background: #010; margin: 10px 0; display: block; }
+        .logout-btn { background: #600; color: #eee; margin-top: 20px; font-size: 0.7rem; }
         #terminal::before {
             content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
@@ -47,44 +41,40 @@
 <body>
 
     <div id="terminal">
-        <h1>INSTITUT VORTHÉNIX</h1>
+        <h1>INSTITUT VORTHÉNIX v1.1</h1>
         <div class="vorth-line"></div>
         
         <div id="setup-section" class="hidden">
-            <p>> AUCUNE SIGNATURE DÉTECTÉE</p>
+            <p>> INITIALISATION SOUVERAINE</p>
             <input type="text" id="new-username" placeholder="NOM DE L'OPÉRATEUR">
             <input type="password" id="new-password" placeholder="CLÉ PRIVÉE i128">
-            <button onclick="handleSetup()">Générer l'identité</button>
+            <button onclick="handleSetup()">CRÉER L'IDENTITÉ</button>
         </div>
 
         <div id="login-section" class="hidden">
             <p>> OPÉRATEUR : <span id="user-detected" style="color:#fff"></span></p>
             <input type="password" id="login-password" placeholder="ENTREZ VOTRE CLÉ">
-            <button onclick="handleLogin()">Décrypter l'accès</button>
+            <button onclick="handleLogin()">DÉCRYPTER</button>
         </div>
 
         <div id="user-menu" class="hidden">
-            <p style="color: #fff;">> ACCÈS SOUVERAIN : <span id="display-name"></span></p>
+            <p style="color: #fff;">> ACCÈS : <span id="display-name"></span></p>
             <p class="status-msg">> MODULE DE PREUVE ÉNERGÉTIQUE ACTIF</p>
-            
             <div class="vorth-line"></div>
-            
-            <label style="font-size: 0.7rem;">IMPULSION ÉNERGÉTIQUE (eV):</label>
+            <label style="font-size: 0.7rem;">IMPULSION (eV):</label>
             <input type="number" id="energy-input" value="128">
-            
-            <button onclick="runVorthSim()">SIMULER MOUVEMENT REEL</button>
-            
-            <div id="sim-result" style="margin-top:10px; font-size: 0.8rem;" class="hidden">
-                <canvas id="vorth-canvas"></canvas>
+            <button onclick="runVorthSim()">SIMULER MOUVEMENT</button>
+            <div id="sim-result" style="margin-top:10px; font-size: 0.7rem;" class="hidden">
+                <canvas id="vorth-canvas" width="300" height="100"></canvas>
                 <p id="calc-result" style="color: #fff;"></p>
             </div>
-
-            <button onclick="logout()" class="logout-btn">Quitter le Noeud</button>
+            <button onclick="logout()" class="logout-btn">REINITIALISER LE NOEUD</button>
         </div>
     </div>
 
     <script>
-        // --- CRYPTAGE i128i128 ---
+        const CURRENT_VERSION = "1.1"; // Change ça pour forcer un reset global
+
         async function vorthEncrypt(data) {
             let vorthHash = "";
             const secretShift = 128; 
@@ -95,45 +85,16 @@
             return "vorth_i128_" + vorthHash;
         }
 
-        // --- SIMULATEUR DE MOUVEMENT ---
-        function runVorthSim() {
-            const energy = document.getElementById('energy-input').value;
-            const resultDiv = document.getElementById('sim-result');
-            const canvas = document.getElementById('vorth-canvas');
-            const ctx = canvas.getContext('2d');
-            const resultText = document.getElementById('calc-result');
-
-            resultDiv.classList.remove('hidden');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            let x = 0;
-            let y = canvas.height / 2;
-            
-            // Animation du mouvement énergétique
-            function draw() {
-                if (x < canvas.width) {
-                    ctx.beginPath();
-                    ctx.strokeStyle = '#0f0';
-                    ctx.lineWidth = 2;
-                    ctx.moveTo(x, y);
-                    
-                    // Formule de trajectoire Vorth (sinusoïdale pulsée)
-                    x += 2;
-                    y = (canvas.height / 2) + Math.sin(x * 0.1) * (energy / 10);
-                    
-                    ctx.lineTo(x, y);
-                    ctx.stroke();
-                    requestAnimationFrame(draw);
-                } else {
-                    const finalVal = (energy * 1.128).toFixed(4);
-                    resultText.innerHTML = `> MOMENT DE CRÉATION ATTEINT.<br>> RÉSULTAT : ${finalVal} i128/V.`;
-                }
-            }
-            draw();
-        }
-
-        // --- SYSTEM LOGIC ---
         window.onload = function() {
+            // LOGIQUE DE RESET AUTOMATIQUE
+            const savedVersion = localStorage.getItem('vorth_version');
+            if (savedVersion !== CURRENT_VERSION) {
+                localStorage.clear();
+                localStorage.setItem('vorth_version', CURRENT_VERSION);
+                location.reload();
+                return;
+            }
+
             const user = localStorage.getItem('vorth_name');
             if (user) {
                 document.getElementById('login-section').classList.remove('hidden');
@@ -167,8 +128,33 @@
             }
         }
 
+        function runVorthSim() {
+            const energy = document.getElementById('energy-input').value;
+            const resultDiv = document.getElementById('sim-result');
+            const canvas = document.getElementById('vorth-canvas');
+            const ctx = canvas.getContext('2d');
+            const resultText = document.getElementById('calc-result');
+
+            resultDiv.classList.remove('hidden');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let x = 0;
+            function draw() {
+                if (x < canvas.width) {
+                    ctx.beginPath(); ctx.strokeStyle = '#0f0'; ctx.lineWidth = 2;
+                    ctx.moveTo(x, 50 + Math.sin(x * 0.1) * (energy/10));
+                    x += 2;
+                    ctx.lineTo(x, 50 + Math.sin(x * 0.1) * (energy/10));
+                    ctx.stroke();
+                    requestAnimationFrame(draw);
+                } else {
+                    resultText.innerHTML = `> CRÉATION RÉUSSIE.<br>> RÉSULTAT : ${(energy * 1.128).toFixed(4)} i128/V.`;
+                }
+            }
+            draw();
+        }
+
         function logout() {
-            if(confirm("DÉCONNECTER LE NOEUD ?")) { localStorage.clear(); location.reload(); }
+            if(confirm("DÉCONNECTER ?")) { localStorage.clear(); location.reload(); }
         }
     </script>
 </body>
