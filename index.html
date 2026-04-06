@@ -7,71 +7,92 @@
     <title>Vorthénix OS</title>
     <link rel="manifest" href="manifest.json">
     <style>
-        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
-        #terminal { width: 85%; max-width: 420px; border: 1px solid #0f0; padding: 25px; background: rgba(0, 15, 0, 0.95); box-shadow: 0 0 20px #0f0; position: relative; border-radius: 5px; }
-        h1 { color: #fff; text-shadow: 0 0 10px #0f0; font-size: 1.2rem; text-align: center; margin: 0 0 20px 0; letter-spacing: 2px; }
+        body { 
+            background: #000; color: #0f0; font-family: 'Courier New', monospace; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            height: 100vh; margin: 0; overflow: hidden;
+        }
+        #terminal { 
+            width: 85%; max-width: 420px; border: 1px solid #0f0; padding: 25px; 
+            background: rgba(0, 15, 0, 0.95); box-shadow: 0 0 20px #0f0; position: relative; 
+            border-radius: 5px; z-index: 5;
+        }
+        h1 { color: #fff; text-shadow: 0 0 10px #0f0; font-size: 1.1rem; text-align: center; margin: 0 0 15px 0; letter-spacing: 2px; }
         .line { border-bottom: 1px solid #0f0; margin: 15px 0; opacity: 0.4; }
         input { background: #000; border: 1px solid #0f0; color: #fff; width: 100%; padding: 12px; margin: 10px 0; box-sizing: border-box; outline: none; font-size: 1rem; }
-        button { background: #0f0; color: #000; border: none; width: 100%; padding: 14px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; transition: 0.2s; }
-        button:active { background: #fff; transform: scale(0.98); }
+        button { background: #0f0; color: #000; border: none; width: 100%; padding: 14px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
+        button:active { background: #fff; }
         .hidden { display: none !important; }
-        #vorth-canvas { width: 100%; height: 100px; border: 1px solid #040; background: #000; margin: 15px 0; display: block; }
-        .status { font-size: 0.75rem; color: #0f0; margin-bottom: 8px; font-weight: bold; }
+        #vorth-canvas { width: 100%; height: 120px; border: 1px solid #040; background: #000; margin: 15px 0; display: block; }
+        .status { font-size: 0.7rem; color: #0f0; margin-bottom: 8px; font-weight: bold; }
         .logout { background: #600; color: #fff; margin-top: 25px; font-size: 0.7rem; opacity: 0.8; }
-        #terminal::after { content: " "; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03)); z-index: 2; pointer-events: none; background-size: 100% 2px, 3px 100%; }
+        
+        /* Effet de scanline Vorth */
+        #terminal::after { 
+            content: " "; position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03)); 
+            z-index: 10; pointer-events: none; background-size: 100% 2px, 3px 100%; 
+        }
     </style>
 </head>
 <body>
 
     <div id="terminal">
-        <h1>INSTITUT VORTHÉNIX v1.5</h1>
+        <h1>INSTITUT VORTHÉNIX v1.7</h1>
         <div class="line"></div>
         
         <div id="setup-section" class="hidden">
-            <p class="status">> INITIALISATION SOUVERAINE i128</p>
+            <p class="status">> DÉTECTION : SYSTÈME VIERGE</p>
+            <p style="font-size: 0.7rem;">Génération de l'identité orthosymétrique...</p>
             <input type="text" id="new-username" placeholder="NOM DE L'OPÉRATEUR">
-            <input type="password" id="new-password" placeholder="CLÉ PRIVÉE">
-            <button onclick="handleSetup()">GÉNÉRER L'ACCÈS</button>
+            <input type="password" id="new-password" placeholder="CLÉ PRIVÉE i128i128">
+            <button onclick="handleSetup()">CRÉER MON ACCÈS</button>
         </div>
 
         <div id="login-section" class="hidden">
-            <p class="status">> OPÉRATEUR DÉTECTÉ : <span id="user-detected" style="color:#fff"></span></p>
+            <p class="status">> OPÉRATEUR : <span id="user-detected" style="color:#fff"></span></p>
+            <p style="font-size: 0.7rem;">Vérification de l'équilibre i128...</p>
             <input type="password" id="login-password" placeholder="ENTREZ VOTRE CLÉ">
-            <button onclick="handleLogin()">DÉVERROUILLER</button>
+            <button onclick="handleLogin()">DÉVERROUILLAGE</button>
         </div>
 
         <div id="user-menu" class="hidden">
-            <p class="status">> ACCÈS SOUVERAIN : <span id="display-name" style="color:#fff"></span></p>
+            <p class="status">> ÉTAT : ORTHOSYMÉTRIQUE TOTAL</p>
+            <p style="font-size: 0.7rem;">Opérateur : <span id="display-name" style="color:#fff"></span></p>
             <div class="line"></div>
-            <label style="font-size: 0.7rem; color: #aaa;">PUISSANCE D'IMPULSION (i128):</label>
+            
+            <label style="font-size: 0.7rem;">IMPULSION i128i128:</label>
             <input type="number" id="energy-input" value="128">
             <button onclick="runVorthSim()">LANCER LA PREUVE</button>
+            
             <div id="sim-result" class="hidden">
-                <canvas id="vorth-canvas" width="350" height="100"></canvas>
-                <p id="calc-result" style="font-size: 0.8rem; color: #fff; background: rgba(0,50,0,0.5); padding: 5px;"></p>
+                <canvas id="vorth-canvas" width="350" height="120"></canvas>
+                <p id="calc-result" style="font-size: 0.75rem; color: #fff; background: rgba(0,50,0,0.5); padding: 5px;"></p>
             </div>
+
             <button onclick="logout()" class="logout">RÉINITIALISER LE NOEUD</button>
         </div>
     </div>
 
     <script>
-        const CURRENT_VER = "1.5";
+        const VER = "1.7";
 
-        // MOTEUR DE CRYPTAGE VORTH
+        // MOTEUR DE CRYPTAGE ORTHOSYMÉTRIQUE
         async function vorthEncrypt(data) {
-            let h = "";
+            let left = "", right = "";
+            const mid = Math.ceil(data.length / 2);
             for (let i = 0; i < data.length; i++) {
-                // Algorithme i128
-                h += Math.abs((data.charCodeAt(i) * 128) ^ (i + 128)).toString(16);
+                let val = (data.charCodeAt(i) * 128) ^ (i + 128);
+                if (i < mid) left += val.toString(16);
+                else right = val.toString(16) + right; // Inversion pour symétrie
             }
-            return "v128_s" + h;
+            return "vorth_" + left + "x" + right;
         }
 
         window.onload = function() {
-            // Nettoyage automatique si version obsolète
-            if (localStorage.getItem('vorth_ver') !== CURRENT_VER) {
+            if (localStorage.getItem('vorth_ver_final') !== VER) {
                 localStorage.clear();
-                localStorage.setItem('vorth_ver', CURRENT_VER);
+                localStorage.setItem('vorth_ver_final', VER);
                 location.reload();
                 return;
             }
@@ -101,7 +122,7 @@
                 document.getElementById('login-section').classList.add('hidden');
                 document.getElementById('user-menu').classList.remove('hidden');
                 document.getElementById('display-name').innerText = localStorage.getItem('vorth_name').toUpperCase();
-            } else { alert("ACCÈS REFUSÉ : SIGNATURE INCORRECTE"); }
+            } else { alert("DÉFAUT DE SYMÉTRIE : ACCÈS REFUSÉ"); }
         }
 
         function runVorthSim() {
@@ -117,23 +138,27 @@
                     ctx.beginPath();
                     ctx.strokeStyle = '#0f0';
                     ctx.lineWidth = 2;
-                    ctx.shadowBlur = 5;
+                    ctx.shadowBlur = 4;
                     ctx.shadowColor = '#0f0';
-                    // Équation de mouvement énergétique
-                    ctx.moveTo(x, 50 + Math.sin(x * 0.1) * (e / 8));
+                    
+                    // Dessin des deux flux en miroir (Orthosymétrie)
+                    ctx.moveTo(x, 40 + Math.sin(x * 0.1) * (e / 10));
+                    ctx.lineTo(x + 4, 40 + Math.sin((x+4) * 0.1) * (e / 10));
+                    
+                    ctx.moveTo(x, 80 - Math.sin(x * 0.1) * (e / 10));
+                    ctx.lineTo(x + 4, 80 - Math.sin((x+4) * 0.1) * (e / 10));
+                    
                     x += 4;
-                    ctx.lineTo(x, 50 + Math.sin(x * 0.1) * (e / 8));
                     ctx.stroke();
                     requestAnimationFrame(anim);
                 } else {
-                    const result = (e * 1.128).toFixed(4);
-                    document.getElementById('calc-result').innerHTML = "> MOMENT CRÉÉ : " + result + " Vorth-Units<br>> STABILITÉ : 100% (SOUVERAIN)";
+                    document.getElementById('calc-result').innerHTML = "> ÉQUILIBRE i128i128 VALIDÉ.<br>> ÉTAT DU MOUVEMENT : SOUVERAIN.";
                 }
             }
             anim();
         }
 
-        function logout() { if(confirm("Voulez-vous vraiment réinitialiser ce nœud ?")) { localStorage.clear(); location.reload(); } }
+        function logout() { if(confirm("RÉINITIALISER LE SYSTÈME ?")) { localStorage.clear(); location.reload(); } }
     </script>
 </body>
 </html>
