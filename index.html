@@ -8,73 +8,39 @@
     <meta name="theme-color" content="#000000">
     <style>
         body { 
-            background: #000; 
-            color: #0f0; 
-            font-family: 'Courier New', monospace; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            height: 100vh; 
-            margin: 0; 
-            overflow: hidden;
+            background: #000; color: #0f0; font-family: 'Courier New', monospace; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            height: 100vh; margin: 0; overflow: hidden;
         }
         #terminal { 
-            width: 90%; 
-            max-width: 450px; 
-            border: 1px solid #0f0; 
-            padding: 25px; 
-            background: rgba(5, 5, 5, 0.9); 
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2); 
-            position: relative;
+            width: 90%; max-width: 450px; border: 1px solid #0f0; padding: 25px; 
+            background: rgba(5, 5, 5, 0.9); box-shadow: 0 0 20px rgba(0, 255, 0, 0.2); 
+            position: relative; z-index: 5;
         }
-        h1 { 
-            color: #fff; 
-            text-shadow: 0 0 8px #0f0; 
-            font-size: 1.4rem; 
-            text-align: center; 
-            letter-spacing: 2px;
-        }
+        h1 { color: #fff; text-shadow: 0 0 8px #0f0; font-size: 1.4rem; text-align: center; letter-spacing: 2px; }
         .vorth-line { border-bottom: 1px solid #0f0; margin: 15px 0; opacity: 0.5; }
         input { 
-            background: #000; 
-            border: 1px solid #0f0; 
-            color: #0f0; 
-            width: 100%; 
-            padding: 12px; 
-            margin: 10px 0; 
-            box-sizing: border-box; 
-            outline: none;
-            font-family: monospace;
+            background: #000; border: 1px solid #0f0; color: #0f0; width: 100%; 
+            padding: 12px; margin: 10px 0; box-sizing: border-box; outline: none; font-family: monospace;
         }
-        input:focus { box-shadow: 0 0 10px #0f0; }
         button { 
-            background: #0f0; 
-            color: #000; 
-            border: none; 
-            width: 100%; 
-            padding: 12px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            margin-top: 10px; 
-            text-transform: uppercase;
-            transition: 0.3s;
+            background: #0f0; color: #000; border: none; width: 100%; padding: 12px; 
+            font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase;
         }
-        button:hover { background: #fff; box-shadow: 0 0 15px #fff; }
         .hidden { display: none; }
         .status-msg { font-size: 0.75rem; color: #0a0; margin-bottom: 10px; }
+        
+        /* Zone Graphique */
+        #vorth-canvas { 
+            width: 100%; height: 100px; border: 1px solid #030; background: #010; margin: 10px 0;
+        }
+
         .logout-btn { background: #600; color: #eee; margin-top: 20px; font-size: 0.8rem; }
         
-        /* Effet de scanline */
         #terminal::before {
-            content: " ";
-            display: block;
-            position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
+            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 2;
-            background-size: 100% 2px, 3px 100%;
-            pointer-events: none;
+            z-index: 10; background-size: 100% 2px, 3px 100%; pointer-events: none;
         }
     </style>
 </head>
@@ -86,7 +52,6 @@
         
         <div id="setup-section" class="hidden">
             <p>> AUCUNE SIGNATURE DÉTECTÉE</p>
-            <p class="status-msg">Initialisation du protocole i128i128...</p>
             <input type="text" id="new-username" placeholder="NOM DE L'OPÉRATEUR">
             <input type="password" id="new-password" placeholder="CLÉ PRIVÉE i128">
             <button onclick="handleSetup()">Générer l'identité</button>
@@ -94,38 +59,80 @@
 
         <div id="login-section" class="hidden">
             <p>> OPÉRATEUR : <span id="user-detected" style="color:#fff"></span></p>
-            <p class="status-msg">Système verrouillé. En attente de la clé.</p>
             <input type="password" id="login-password" placeholder="ENTREZ VOTRE CLÉ">
             <button onclick="handleLogin()">Décrypter l'accès</button>
         </div>
 
         <div id="user-menu" class="hidden">
-            <p style="color: #fff;">> ACCÈS SOUVERAIN CONFIRMÉ</p>
-            <p class="status-msg">> NOEUD : GASPÉSIE_CORE_01</p>
+            <p style="color: #fff;">> ACCÈS SOUVERAIN : <span id="display-name"></span></p>
+            <p class="status-msg">> MODULE DE PREUVE ÉNERGÉTIQUE ACTIF</p>
+            
             <div class="vorth-line"></div>
-            <p>> Bienvenue dans le nouveau paradigme, <span id="display-name" style="color:#fff"></span>.</p>
             
-            <button onclick="alert('Module de physique i128 en cours de chargement...')">Calculateur Vorth</button>
-            <button onclick="alert('Synchronisation avec le réseau local...')">Partage Souverain</button>
+            <label style="font-size: 0.7rem;">IMPULSION ÉNERGÉTIQUE (eV):</label>
+            <input type="number" id="energy-input" value="128">
             
-            <button onclick="logout()" class="logout-btn">Formater l'accès local</button>
+            <button onclick="runVorthSim()">SIMULER MOUVEMENT REEL</button>
+            
+            <div id="sim-result" style="margin-top:10px; font-size: 0.8rem;" class="hidden">
+                <canvas id="vorth-canvas"></canvas>
+                <p id="calc-result" style="color: #fff;"></p>
+            </div>
+
+            <button onclick="logout()" class="logout-btn">Quitter le Noeud</button>
         </div>
     </div>
 
     <script>
-        // --- MOTEUR DE CRYPTAGE VORTH i128i128 ---
+        // --- CRYPTAGE i128i128 ---
         async function vorthEncrypt(data) {
             let vorthHash = "";
             const secretShift = 128; 
             for (let i = 0; i < data.length; i++) {
                 let charCode = data.charCodeAt(i);
-                // Formule de distorsion i128
                 vorthHash += Math.abs((charCode * secretShift) ^ (i + 128)).toString(16);
             }
             return "vorth_i128_" + vorthHash;
         }
 
-        // --- LOGIQUE SYSTÈME ---
+        // --- SIMULATEUR DE MOUVEMENT ---
+        function runVorthSim() {
+            const energy = document.getElementById('energy-input').value;
+            const resultDiv = document.getElementById('sim-result');
+            const canvas = document.getElementById('vorth-canvas');
+            const ctx = canvas.getContext('2d');
+            const resultText = document.getElementById('calc-result');
+
+            resultDiv.classList.remove('hidden');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            let x = 0;
+            let y = canvas.height / 2;
+            
+            // Animation du mouvement énergétique
+            function draw() {
+                if (x < canvas.width) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#0f0';
+                    ctx.lineWidth = 2;
+                    ctx.moveTo(x, y);
+                    
+                    // Formule de trajectoire Vorth (sinusoïdale pulsée)
+                    x += 2;
+                    y = (canvas.height / 2) + Math.sin(x * 0.1) * (energy / 10);
+                    
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+                    requestAnimationFrame(draw);
+                } else {
+                    const finalVal = (energy * 1.128).toFixed(4);
+                    resultText.innerHTML = `> MOMENT DE CRÉATION ATTEINT.<br>> RÉSULTAT : ${finalVal} i128/V.`;
+                }
+            }
+            draw();
+        }
+
+        // --- SYSTEM LOGIC ---
         window.onload = function() {
             const user = localStorage.getItem('vorth_name');
             if (user) {
@@ -140,85 +147,28 @@
             const name = document.getElementById('new-username').value;
             const pass = document.getElementById('new-password').value;
             if (name && pass) {
-                const encryptedPass = await vorthEncrypt(pass);
+                const enc = await vorthEncrypt(pass);
                 localStorage.setItem('vorth_name', name);
-                localStorage.setItem('vorth_key', encryptedPass);
-                alert("Identité cryptée en i128i128. Système prêt.");
+                localStorage.setItem('vorth_key', enc);
                 location.reload();
             }
         }
 
         async function handleLogin() {
-            const passEntered = document.getElementById('login-password').value;
-            const savedEncryptedPass = localStorage.getItem('vorth_key');
-            const testPass = await vorthEncrypt(passEntered);
-            
-            if (testPass === savedEncryptedPass) {
+            const pass = document.getElementById('login-password').value;
+            const saved = localStorage.getItem('vorth_key');
+            const test = await vorthEncrypt(pass);
+            if (test === saved) {
                 document.getElementById('login-section').classList.add('hidden');
                 document.getElementById('user-menu').classList.remove('hidden');
-                document.getElementById('display-name').innerText = localStorage.getItem('vorth_name');
+                document.getElementById('display-name').innerText = localStorage.getItem('vorth_name').toUpperCase();
             } else {
-                alert("SIGNATURE INCORRECTE. ACCÈS RÉSEAU BLOQUÉ.");
+                alert("ERREUR DE SIGNATURE.");
             }
         }
 
         function logout() {
-            if(confirm("ATTENTION : Cela supprimera votre clé locale. Continuer ?")) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
-    </script>
-</body>
-</html>
-        <div id="user-menu" class="hidden">
-            <p>> ACCÈS ACCORDÉ.</p>
-            <p id="os-status">> SYSTÈME VORTHÉNIX V1.0</p>
-            <hr style="border: 0.5px solid #0f0;">
-            <button onclick="alert('Ouverture des archives...')">ACCÈS ARCHIVES</button>
-            <button onclick="logout()" style="background: #a00; color: #fff;">FORMATER L'ACCÈS (LOGOUT)</button>
-        </div>
-    </div>
-
-    <script>
-        // Logique de détection au démarrage
-        window.onload = function() {
-            const user = localStorage.getItem('vorth_name');
-            if (user) {
-                document.getElementById('login-section').classList.remove('hidden');
-                document.getElementById('user-detected').innerText = user;
-            } else {
-                document.getElementById('setup-section').classList.remove('hidden');
-            }
-        };
-
-        function handleSetup() {
-            const name = document.getElementById('new-username').value;
-            const pass = document.getElementById('new-password').value;
-            if (name && pass) {
-                localStorage.setItem('vorth_name', name);
-                localStorage.setItem('vorth_key', pass); // Plus tard, on va crypter ça
-                location.reload(); // Redémarre pour passer en mode Login
-            }
-        }
-
-        function handleLogin() {
-            const passEntered = document.getElementById('login-password').value;
-            const realPass = localStorage.getItem('vorth_key');
-            
-            if (passEntered === realPass) {
-                document.getElementById('login-section').classList.add('hidden');
-                document.getElementById('user-menu').classList.remove('hidden');
-            } else {
-                alert("CLÉ INCORRECTE. ACCÈS REFUSÉ.");
-            }
-        }
-
-        function logout() {
-            if(confirm("Voulez-vous supprimer votre identité de ce téléphone ?")) {
-                localStorage.clear();
-                location.reload();
-            }
+            if(confirm("DÉCONNECTER LE NOEUD ?")) { localStorage.clear(); location.reload(); }
         }
     </script>
 </body>
