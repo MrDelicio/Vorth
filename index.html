@@ -10,59 +10,78 @@
         #terminal { width: 90%; max-width: 400px; border: 1px solid #0f0; padding: 20px; background: #050505; box-shadow: 0 0 15px #0f0; }
         h1 { color: #fff; text-shadow: 0 0 5px #0f0; font-size: 1.2rem; text-align: center; }
         input { background: #000; border: 1px solid #0f0; color: #0f0; width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
-        button { background: #0f0; color: #000; border: none; width: 100%; padding: 10px; font-weight: bold; cursor: pointer; }
-        button:hover { background: #fff; }
+        button { background: #0f0; color: #000; border: none; width: 100%; padding: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .hidden { display: none; }
+        .status-msg { font-size: 0.8rem; color: #888; }
     </style>
 </head>
 <body>
     <div id="terminal">
         <h1>INSTITUT VORTHÉNIX</h1>
         
-        <div id="login-section">
-            <p>> Identification requise...</p>
-            <input type="text" id="username" placeholder="Nom d'utilisateur">
-            <input type="password" id="password" placeholder="Clé de sécurité">
-            <button onclick="createAccount()">CRÉER MON ACCÈS</button>
+        <div id="setup-section" class="hidden">
+            <p>> AUCUN COMPTE DÉTECTÉ</p>
+            <p class="status-msg">Génération de votre identité souveraine...</p>
+            <input type="text" id="new-username" placeholder="Choisir un nom">
+            <input type="password" id="new-password" placeholder="Définir clé de sécurité">
+            <button onclick="handleSetup()">CRÉER MON IDENTITÉ</button>
+        </div>
+
+        <div id="login-section" class="hidden">
+            <p>> BIENVENU, <span id="user-detected"></span></p>
+            <p class="status-msg">Entrez votre clé pour décrypter l'accès.</p>
+            <input type="password" id="login-password" placeholder="Votre clé de sécurité">
+            <button onclick="handleLogin()">DÉVERROUILLER</button>
         </div>
 
         <div id="user-menu" class="hidden">
-            <p>> Bienvenue, <span id="display-name"></span></p>
-            <p>> Statut : SOUVERAIN</p>
+            <p>> ACCÈS ACCORDÉ.</p>
+            <p id="os-status">> SYSTÈME VORTHÉNIX V1.0</p>
             <hr style="border: 0.5px solid #0f0;">
-            <button onclick="alert('Accès aux archives de physique...')">ACCÈS AUX ARCHIVES</button>
-            <br><br>
-            <button onclick="logout()" style="background: #a00; color: white;">DÉCONNEXION</button>
+            <button onclick="alert('Ouverture des archives...')">ACCÈS ARCHIVES</button>
+            <button onclick="logout()" style="background: #a00; color: #fff;">FORMATER L'ACCÈS (LOGOUT)</button>
         </div>
     </div>
 
     <script>
-        // Vérifie si un compte existe déjà au chargement
+        // Logique de détection au démarrage
         window.onload = function() {
-            const savedUser = localStorage.getItem('vorthenix_user');
-            if (savedUser) {
-                showMenu(savedUser);
+            const user = localStorage.getItem('vorth_name');
+            if (user) {
+                document.getElementById('login-section').classList.remove('hidden');
+                document.getElementById('user-detected').innerText = user;
+            } else {
+                document.getElementById('setup-section').classList.remove('hidden');
             }
         };
 
-        function createAccount() {
-            const user = document.getElementById('username').value;
-            if (user) {
-                // Ici on simule la création du fichier cryptographique
-                localStorage.setItem('vorthenix_user', user);
-                showMenu(user);
+        function handleSetup() {
+            const name = document.getElementById('new-username').value;
+            const pass = document.getElementById('new-password').value;
+            if (name && pass) {
+                localStorage.setItem('vorth_name', name);
+                localStorage.setItem('vorth_key', pass); // Plus tard, on va crypter ça
+                location.reload(); // Redémarre pour passer en mode Login
             }
         }
 
-        function showMenu(name) {
-            document.getElementById('login-section').classList.add('hidden');
-            document.getElementById('user-menu').classList.remove('hidden');
-            document.getElementById('display-name').innerText = name;
+        function handleLogin() {
+            const passEntered = document.getElementById('login-password').value;
+            const realPass = localStorage.getItem('vorth_key');
+            
+            if (passEntered === realPass) {
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('user-menu').classList.remove('hidden');
+            } else {
+                alert("CLÉ INCORRECTE. ACCÈS REFUSÉ.");
+            }
         }
 
         function logout() {
-            localStorage.removeItem('vorthenix_user');
-            location.reload();
+            if(confirm("Voulez-vous supprimer votre identité de ce téléphone ?")) {
+                localStorage.clear();
+                location.reload();
+            }
         }
     </script>
 </body>
