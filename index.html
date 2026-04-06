@@ -4,179 +4,150 @@
     <meta charset="UTF-8">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vorthénix OS v2.0</title>
+    <title>Vorthénix OS v2.2</title>
     <style>
         body { background: #000; color: #0f0; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
-        #terminal { width: 85%; max-width: 420px; border: 1px solid #0f0; padding: 25px; background: rgba(0, 15, 0, 0.95); box-shadow: 0 0 25px #0f0; position: relative; border-radius: 5px; z-index: 5; }
-        h1 { color: #fff; text-shadow: 0 0 10px #0f0; font-size: 1.1rem; text-align: center; margin: 0 0 15px 0; letter-spacing: 2px; }
-        .line { border-bottom: 1px solid #0f0; margin: 15px 0; opacity: 0.4; }
-        input { background: #000; border: 1px solid #0f0; color: #fff; width: 100%; padding: 12px; margin: 10px 0; box-sizing: border-box; outline: none; text-align: center; font-size: 1rem; }
-        button { background: #0f0; color: #000; border: none; width: 100%; padding: 14px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; transition: 0.2s; }
-        button:active { background: #fff; transform: scale(0.98); }
-        button:disabled { background: #030; color: #060; cursor: not-allowed; }
-        .hidden { display: none !important; }
-        #vorth-canvas { width: 100%; height: 100px; border: 1px solid #040; background: #000; margin: 10px 0; display: block; }
-        .status { font-size: 0.7rem; color: #0f0; margin-bottom: 8px; font-weight: bold; }
-        #stability-meter { height: 4px; background: #300; width: 100%; margin-top: 5px; overflow: hidden; }
-        #stability-fill { height: 100%; background: #0f0; width: 0%; transition: 0.5s ease-out; }
-        #archives { font-size: 0.6rem; color: #888; max-height: 100px; overflow-y: auto; margin-top: 15px; border-top: 1px solid #030; padding-top: 5px; text-align: left; }
-        .chamber-active { color: #f00; animation: blink 0.5s infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
-        #terminal::after { content: " "; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03)); z-index: 10; pointer-events: none; background-size: 100% 2px, 3px 100%; }
+        #terminal { width: 88%; max-width: 440px; border: 1px solid #0f0; padding: 20px; background: rgba(0, 10, 0, 0.98); box-shadow: 0 0 30px rgba(0,255,0,0.2); border-radius: 5px; position: relative; }
+        h1 { color: #fff; text-shadow: 0 0 10px #0f0; font-size: 1rem; text-align: center; letter-spacing: 3px; margin: 0 0 10px 0; }
+        .line { border-bottom: 1px solid #0f0; margin: 10px 0; opacity: 0.2; }
+        button { background: #0f0; color: #000; border: none; width: 100%; padding: 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
+        button:disabled { background: #020; color: #040; }
+        #vorth-canvas { width: 100%; height: 150px; background: #000; border: 1px solid #020; margin: 10px 0; }
+        .status-box { font-size: 0.65rem; background: rgba(0,30,0,0.9); padding: 12px; border-left: 3px solid #0f0; margin: 10px 0; line-height: 1.4; }
+        #timer { font-size: 1.2rem; color: #fff; text-align: center; height: 25px; font-weight: bold; }
+        #archives { font-size: 0.6rem; color: #555; max-height: 70px; overflow-y: auto; border-top: 1px solid #020; padding-top: 8px; }
+        .sig-text { color: #0ff; font-weight: bold; }
+        /* Scanline effect */
+        #terminal::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%); background-size: 100% 4px; z-index: 10; pointer-events: none; }
     </style>
 </head>
 <body>
 
     <div id="terminal">
-        <h1>VORTHÉNIX INSTITUT v2.0</h1>
+        <h1>VORTHÉNIX INSTITUT v2.2</h1>
         <div class="line"></div>
         
-        <div id="access-section">
-            <p class="status">> IDENTIFICATION DU NOEUD SOUVERAIN...</p>
-            <input type="password" id="pass" placeholder="CLÉ i128i128">
-            <button onclick="unlock()">ENTRER DANS LA CHAMBRE</button>
+        <p class="status-box">> CAPTEUR HAUTE RÉSOLUTION i128 ACTIVÉ.<br>> PRÊT POUR L'EXTRACTION D'EMPREINTE MATIÈRE.</p>
+
+        <canvas id="vorth-canvas" width="400" height="150"></canvas>
+        <div id="timer">STANDBY</div>
+
+        <button id="run-btn" onclick="runHighResScan()">DÉMARRER DOUBLE SCAN HR</button>
+
+        <div id="results" class="hidden">
+            <div class="status-box">
+                <p id="res-raw">> BRUIT HARDWARE : --</p>
+                <p id="res-iso">> ISOLATION VORTH : --</p>
+                <p id="res-delta" style="color: #0ff; border-top: 1px solid #040; margin-top: 5px; padding-top: 5px;">> PURETÉ (DELTA) : --</p>
+            </div>
         </div>
 
-        <div id="user-menu" class="hidden">
-            <p class="status">> CHAMBRE DE VIDE NUMÉRIQUE : ACTIVE</p>
-            <div id="stability-meter"><div id="stability-fill"></div></div>
-            
-            <canvas id="vorth-canvas" width="350" height="100"></canvas>
-            
-            <p id="timer-display" style="text-align: center; font-size: 1.2rem; margin: 10px 0; color: #fff; height: 30px;"></p>
-            
-            <button id="run-btn" onclick="startVacuumProcess()">LANCER LE SCAN SOUVERAIN</button>
-            
-            <div id="results" class="hidden" style="font-size: 0.7rem; background: rgba(0,20,0,0.7); padding: 10px; margin-top: 10px; border-left: 2px solid #0f0;">
-                <p id="res-standard">> SCAN BRUT (BRUITÉ) : ---</p>
-                <p id="res-vorth" style="color: #fff;">> SCAN VORTH (ISOLÉ) : ---</p>
-                <p id="res-delta" style="color: #0ff;">> DELTA ISOLATION : ---</p>
-            </div>
-
-            <div id="archives">
-                <p style="color: #0f0; margin-bottom: 5px;">[JOURNAL DES MOMENTS CRÉÉS]</p>
-                <div id="log-content"></div>
-            </div>
-            
-            <button onclick="if(confirm('RESET TOTAL?')) { localStorage.clear(); location.reload(); }" style="background:#400; color:#fff; font-size:0.6rem; margin-top:20px; padding: 5px;">RÉINITIALISER LE NOEUD</button>
+        <div id="archives">
+            <p style="color:#0a0">[JOURNAL DE CRÉATION]</p>
+            <div id="log-list"></div>
         </div>
+
+        <button onclick="localStorage.clear(); location.reload();" style="background:#200; color:#fff; font-size:0.5rem; margin-top:15px; padding: 5px;">RESTART CORE</button>
     </div>
 
     <script>
-        const VERSION = "2.0";
+        const VERSION = "2.2";
 
-        // Nettoyage automatique au démarrage si nouvelle version
-        window.onload = function() {
-            if (localStorage.getItem('vorth_ver_v2') !== VERSION) {
+        window.onload = () => {
+            if (localStorage.getItem('vorth_v22') !== VERSION) {
                 localStorage.clear();
-                localStorage.setItem('vorth_ver_v2', VERSION);
-                location.reload();
+                localStorage.setItem('vorth_v22', VERSION);
             }
-            loadArchives();
+            updateLogs();
         };
 
-        function unlock() {
-            const p = document.getElementById('pass').value;
-            if(p.length > 0) {
-                document.getElementById('access-section').classList.add('hidden');
-                document.getElementById('user-menu').classList.remove('hidden');
-            }
-        }
-
-        async function startVacuumProcess() {
+        async function runHighResScan() {
             const btn = document.getElementById('run-btn');
-            const timer = document.getElementById('timer-display');
-            const resDiv = document.getElementById('results');
+            const timer = document.getElementById('timer');
             btn.disabled = true;
-            resDiv.classList.add('hidden');
-            
-            // ÉTAPE 1 : Capture du "Bruit Hardware" ambiant
-            const rawStart = window.performance.now();
-            for(let i=0; i<150000; i++) { Math.atan(i); } // Stress CPU test
-            const rawEnd = window.performance.now();
-            const rawWork = (rawEnd - rawStart);
 
-            // ÉTAPE 2 : Chambre de Vide (Stabilisation de la matière)
-            timer.className = "chamber-active";
+            // SCAN 1 : BRUIT
+            timer.innerHTML = "CAPTURE DU BRUIT...";
+            const rawTime = await performMeasure(false);
+            
+            // CHAMBRE DE VIDE
             let count = 2;
-            const countdown = setInterval(() => {
-                timer.innerHTML = `T-MINUS ${count}s...`;
-                count--;
-                if(count < 0) {
-                    clearInterval(countdown);
-                    timer.innerHTML = "ISOLATION i128i128";
-                    timer.className = "";
-                    runFinalScan(rawWork);
+            const cd = setInterval(() => {
+                timer.innerHTML = `VIDE : T-${count}s`;
+                if(count-- <= 0) {
+                    clearInterval(cd);
+                    timer.innerHTML = "ISOLATION...";
+                    startIsolatedScan(rawTime);
                 }
             }, 1000);
         }
 
-        function runFinalScan(rawWork) {
-            const canvas = document.getElementById('vorth-canvas');
-            const ctx = canvas.getContext('2d');
-            const timer = document.getElementById('timer-display');
-            const stabFill = document.getElementById('stability-fill');
-            
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-            let x = 0;
-            let deviations = [];
-            
-            function anim() {
-                if(x < canvas.width) {
-                    const s = window.performance.now();
-                    ctx.beginPath(); ctx.strokeStyle = '#0f0'; ctx.lineWidth = 2;
-                    ctx.shadowBlur = 5; ctx.shadowColor = '#0f0';
-                    
-                    // Orthosymétrie i128i128
-                    ctx.moveTo(x, 35 + Math.sin(x*0.15)*10);
-                    ctx.moveTo(x, 65 - Math.sin(x*0.15)*10);
-                    x += 5;
-                    ctx.lineTo(x, 35 + Math.sin(x*0.15)*10);
-                    ctx.lineTo(x, 65 - Math.sin(x*0.15)*10);
-                    ctx.stroke();
-                    
-                    deviations.push(window.performance.now() - s);
-                    requestAnimationFrame(anim);
-                } else {
-                    const vorthWork = deviations.reduce((a,b)=>a+b, 0);
-                    const delta = Math.abs(rawWork - vorthWork);
-                    const stability = Math.max(0, Math.min(100, 100 - (delta * 2)));
+        async function startIsolatedScan(rawTime) {
+            const isoTime = await performMeasure(true);
+            showResults(rawTime, isoTime);
+        }
 
-                    // Affichage des preuves
-                    document.getElementById('results').classList.remove('hidden');
-                    document.getElementById('res-standard').innerHTML = `> SCAN BRUT (BRUIT) : ${rawWork.toFixed(4)} ms`;
-                    document.getElementById('res-vorth').innerHTML = `> SCAN VORTH (ISOLÉ) : ${vorthWork.toFixed(4)} ms`;
-                    document.getElementById('res-delta').innerHTML = `> DELTA ISOLATION : ${delta.toFixed(4)} ms`;
-                    
-                    stabFill.style.width = stability + "%";
-                    stabFill.style.background = stability > 85 ? "#0f0" : "#f00";
-                    timer.innerHTML = stability > 85 ? "SOUVERAINETÉ ATTEINTE" : "INTERFÉRENCE DÉTECTÉE";
-                    
-                    document.getElementById('run-btn').disabled = false;
+        function performMeasure(isIsolated) {
+            return new Promise(resolve => {
+                const canvas = document.getElementById('vorth-canvas');
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+                
+                let x = 0;
+                let frameTimes = [];
+                const numLines = 64; // 64 haut + 64 bas = 128 fibres
 
-                    // ARCHIVAGE
-                    saveToArchives(vorthWork, stability);
+                function step() {
+                    if(x < canvas.width) {
+                        let tS = window.performance.now();
+                        
+                        // Dessin du faisceau de 128 fibres
+                        for(let i = 0; i < numLines; i++) {
+                            ctx.beginPath();
+                            ctx.lineWidth = 0.5;
+                            ctx.strokeStyle = isIsolated ? `rgba(0, 255, 0, ${1 - i/numLines})` : `rgba(80, 80, 80, 0.3)`;
+                            
+                            let offset = i * 0.8;
+                            // Courbes fines orthosymétriques
+                            ctx.moveTo(x, 50 + Math.sin(x*0.08 + i*0.1) * (15 + i*0.2));
+                            ctx.lineTo(x + 5, 50 + Math.sin((x+5)*0.08 + i*0.1) * (15 + i*0.2));
+                            
+                            ctx.moveTo(x, 100 - Math.sin(x*0.08 + i*0.1) * (15 + i*0.2));
+                            ctx.lineTo(x + 5, 100 - Math.sin((x+5)*0.08 + i*0.1) * (15 + i*0.2));
+                            ctx.stroke();
+                        }
+                        
+                        x += 5;
+                        frameTimes.push(window.performance.now() - tS);
+                        requestAnimationFrame(step);
+                    } else {
+                        resolve(frameTimes.reduce((a,b)=>a+b, 0));
+                    }
                 }
-            }
-            anim();
+                step();
+            });
         }
 
-        function saveToArchives(work, stab) {
-            const sig = "V-" + btoa(work).substring(0,8).toUpperCase();
-            const time = new Date().toLocaleTimeString();
-            const entry = { time, sig, stab: stab.toFixed(1) };
+        function showResults(raw, iso) {
+            const delta = Math.abs(raw - iso).toFixed(4);
+            document.getElementById('results').classList.remove('hidden');
+            document.getElementById('res-raw').innerHTML = `> BRUIT CAPTÉ : ${raw.toFixed(4)} ms`;
+            document.getElementById('res-iso').innerHTML = `> ISOLATION HR : ${iso.toFixed(4)} ms`;
+            document.getElementById('res-delta').innerHTML = `> PURETÉ EXTRAITE : <span class="sig-text">${delta} ms</span>`;
             
-            let logs = JSON.parse(localStorage.getItem('vorth_logs') || "[]");
-            logs.unshift(entry);
-            if(logs.length > 5) logs.pop(); // Garde les 5 derniers
-            localStorage.setItem('vorth_logs', JSON.stringify(logs));
-            loadArchives();
+            document.getElementById('timer').innerHTML = "SCAN TERMINÉ";
+            document.getElementById('run-btn').disabled = false;
+
+            const sig = "V" + btoa(delta).substring(0,6).toUpperCase();
+            let logs = JSON.parse(localStorage.getItem('v_logs_hr') || "[]");
+            logs.unshift({t: new Date().toLocaleTimeString(), d: delta, s: sig});
+            localStorage.setItem('v_logs_hr', JSON.stringify(logs.slice(0,5)));
+            updateLogs();
         }
 
-        function loadArchives() {
-            const logs = JSON.parse(localStorage.getItem('vorth_logs') || "[]");
-            const container = document.getElementById('log-content');
-            container.innerHTML = logs.map(l => `<p>[${l.time}] SIG: ${l.sig} | STAB: ${l.stab}%</p>`).join('');
+        function updateLogs() {
+            const logs = JSON.parse(localStorage.getItem('v_logs_hr') || "[]");
+            document.getElementById('log-list').innerHTML = logs.map(l => `<p>[${l.t}] SIG: ${l.s} | DELTA: ${l.d}ms</p>`).join('');
         }
     </script>
 </body>
