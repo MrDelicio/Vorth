@@ -5,35 +5,172 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vorthénix OS</title>
     <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        #terminal { width: 90%; max-width: 400px; border: 1px solid #0f0; padding: 20px; background: #050505; box-shadow: 0 0 15px #0f0; }
-        h1 { color: #fff; text-shadow: 0 0 5px #0f0; font-size: 1.2rem; text-align: center; }
-        input { background: #000; border: 1px solid #0f0; color: #0f0; width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
-        button { background: #0f0; color: #000; border: none; width: 100%; padding: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        body { 
+            background: #000; 
+            color: #0f0; 
+            font-family: 'Courier New', monospace; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+            overflow: hidden;
+        }
+        #terminal { 
+            width: 90%; 
+            max-width: 450px; 
+            border: 1px solid #0f0; 
+            padding: 25px; 
+            background: rgba(5, 5, 5, 0.9); 
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2); 
+            position: relative;
+        }
+        h1 { 
+            color: #fff; 
+            text-shadow: 0 0 8px #0f0; 
+            font-size: 1.4rem; 
+            text-align: center; 
+            letter-spacing: 2px;
+        }
+        .vorth-line { border-bottom: 1px solid #0f0; margin: 15px 0; opacity: 0.5; }
+        input { 
+            background: #000; 
+            border: 1px solid #0f0; 
+            color: #0f0; 
+            width: 100%; 
+            padding: 12px; 
+            margin: 10px 0; 
+            box-sizing: border-box; 
+            outline: none;
+            font-family: monospace;
+        }
+        input:focus { box-shadow: 0 0 10px #0f0; }
+        button { 
+            background: #0f0; 
+            color: #000; 
+            border: none; 
+            width: 100%; 
+            padding: 12px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin-top: 10px; 
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+        button:hover { background: #fff; box-shadow: 0 0 15px #fff; }
         .hidden { display: none; }
-        .status-msg { font-size: 0.8rem; color: #888; }
+        .status-msg { font-size: 0.75rem; color: #0a0; margin-bottom: 10px; }
+        .logout-btn { background: #600; color: #eee; margin-top: 20px; font-size: 0.8rem; }
+        
+        /* Effet de scanline */
+        #terminal::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
+
     <div id="terminal">
         <h1>INSTITUT VORTHÉNIX</h1>
+        <div class="vorth-line"></div>
         
         <div id="setup-section" class="hidden">
-            <p>> AUCUN COMPTE DÉTECTÉ</p>
-            <p class="status-msg">Génération de votre identité souveraine...</p>
-            <input type="text" id="new-username" placeholder="Choisir un nom">
-            <input type="password" id="new-password" placeholder="Définir clé de sécurité">
-            <button onclick="handleSetup()">CRÉER MON IDENTITÉ</button>
+            <p>> AUCUNE SIGNATURE DÉTECTÉE</p>
+            <p class="status-msg">Initialisation du protocole i128i128...</p>
+            <input type="text" id="new-username" placeholder="NOM DE L'OPÉRATEUR">
+            <input type="password" id="new-password" placeholder="CLÉ PRIVÉE i128">
+            <button onclick="handleSetup()">Générer l'identité</button>
         </div>
 
         <div id="login-section" class="hidden">
-            <p>> BIENVENU, <span id="user-detected"></span></p>
-            <p class="status-msg">Entrez votre clé pour décrypter l'accès.</p>
-            <input type="password" id="login-password" placeholder="Votre clé de sécurité">
-            <button onclick="handleLogin()">DÉVERROUILLER</button>
+            <p>> OPÉRATEUR : <span id="user-detected" style="color:#fff"></span></p>
+            <p class="status-msg">Système verrouillé. En attente de la clé.</p>
+            <input type="password" id="login-password" placeholder="ENTREZ VOTRE CLÉ">
+            <button onclick="handleLogin()">Décrypter l'accès</button>
         </div>
 
+        <div id="user-menu" class="hidden">
+            <p style="color: #fff;">> ACCÈS SOUVERAIN CONFIRMÉ</p>
+            <p class="status-msg">> NOEUD : GASPÉSIE_CORE_01</p>
+            <div class="vorth-line"></div>
+            <p>> Bienvenue dans le nouveau paradigme, <span id="display-name" style="color:#fff"></span>.</p>
+            
+            <button onclick="alert('Module de physique i128 en cours de chargement...')">Calculateur Vorth</button>
+            <button onclick="alert('Synchronisation avec le réseau local...')">Partage Souverain</button>
+            
+            <button onclick="logout()" class="logout-btn">Formater l'accès local</button>
+        </div>
+    </div>
+
+    <script>
+        // --- MOTEUR DE CRYPTAGE VORTH i128i128 ---
+        async function vorthEncrypt(data) {
+            let vorthHash = "";
+            const secretShift = 128; 
+            for (let i = 0; i < data.length; i++) {
+                let charCode = data.charCodeAt(i);
+                // Formule de distorsion i128
+                vorthHash += Math.abs((charCode * secretShift) ^ (i + 128)).toString(16);
+            }
+            return "vorth_i128_" + vorthHash;
+        }
+
+        // --- LOGIQUE SYSTÈME ---
+        window.onload = function() {
+            const user = localStorage.getItem('vorth_name');
+            if (user) {
+                document.getElementById('login-section').classList.remove('hidden');
+                document.getElementById('user-detected').innerText = user.toUpperCase();
+            } else {
+                document.getElementById('setup-section').classList.remove('hidden');
+            }
+        };
+
+        async function handleSetup() {
+            const name = document.getElementById('new-username').value;
+            const pass = document.getElementById('new-password').value;
+            if (name && pass) {
+                const encryptedPass = await vorthEncrypt(pass);
+                localStorage.setItem('vorth_name', name);
+                localStorage.setItem('vorth_key', encryptedPass);
+                alert("Identité cryptée en i128i128. Système prêt.");
+                location.reload();
+            }
+        }
+
+        async function handleLogin() {
+            const passEntered = document.getElementById('login-password').value;
+            const savedEncryptedPass = localStorage.getItem('vorth_key');
+            const testPass = await vorthEncrypt(passEntered);
+            
+            if (testPass === savedEncryptedPass) {
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('user-menu').classList.remove('hidden');
+                document.getElementById('display-name').innerText = localStorage.getItem('vorth_name');
+            } else {
+                alert("SIGNATURE INCORRECTE. ACCÈS RÉSEAU BLOQUÉ.");
+            }
+        }
+
+        function logout() {
+            if(confirm("ATTENTION : Cela supprimera votre clé locale. Continuer ?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
         <div id="user-menu" class="hidden">
             <p>> ACCÈS ACCORDÉ.</p>
             <p id="os-status">> SYSTÈME VORTHÉNIX V1.0</p>
