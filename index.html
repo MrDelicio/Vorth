@@ -3,64 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vorthénix v5.0 - Jonction Absolue</title>
+    <title>Vorthénix v5.1 - Jonction Identitaire</title>
     <style>
-        :root { --neon: #0ff; --dim: #033; --bg: #000; }
-        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 10px; overflow-x: hidden; user-select: none; }
+        :root { --neon: #0ff; --dim: #033; --bg: #000; --warn: #f00; }
+        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 10px; overflow-y: auto; }
         #terminal { width: 100%; max-width: 550px; border: 1px solid var(--neon); padding: 20px; background: var(--bg); box-shadow: 0 0 60px rgba(0,255,255,0.1); position: relative; }
-        h1 { color: #fff; text-shadow: 0 0 20px var(--neon); font-size: 1rem; text-align: center; letter-spacing: 8px; margin: 0 0 15px 0; text-transform: uppercase; }
-        #vorth-canvas { width: 100%; height: 350px; background: #000; border: 1px solid #011; display: block; margin: 15px 0; cursor: crosshair; }
-        .status-box { font-size: 0.65rem; background: rgba(0,12,24,0.95); padding: 20px; border-left: 4px solid var(--neon); margin: 15px 0; color: #fff; line-height: 1.8; }
-        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; border-top: 1px solid var(--dim); padding-top: 15px; }
-        .data-item { font-size: 0.55rem; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; }
-        .val { color: var(--neon); font-weight: bold; font-size: 0.65rem; }
-        button { background: var(--neon); color: #000; border: none; width: 100%; padding: 25px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 6px; font-size: 0.9rem; transition: 0.3s; }
-        button:active { background: #fff; transform: scale(0.98); }
-        #stratification { max-height: 180px; overflow-y: auto; font-size: 0.5rem; color: #044; margin-top: 15px; border-top: 1px solid #022; padding-top: 10px; }
+        h1 { color: #fff; text-shadow: 0 0 20px var(--neon); font-size: 1rem; text-align: center; letter-spacing: 8px; margin: 0 0 15px 0; }
+        
+        /* Interface de Compte */
+        #auth-zone { background: rgba(0,20,30,0.9); padding: 15px; border: 1px solid var(--dim); margin-bottom: 15px; font-size: 0.7rem; }
+        input { background: #000; border: 1px solid var(--dim); color: var(--neon); padding: 10px; width: 100%; box-sizing: border-box; margin-top: 5px; outline: none; }
+        input:focus { border-color: var(--neon); }
+
+        #vorth-canvas { width: 100%; height: 300px; background: #000; border: 1px solid #011; display: block; margin: 15px 0; }
+        .status-box { font-size: 0.65rem; background: rgba(0,12,24,0.95); padding: 18px; border-left: 4px solid var(--neon); margin: 10px 0; color: #fff; line-height: 1.8; }
+        
+        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; border-top: 1px solid var(--dim); padding-top: 10px; }
+        .data-item { font-size: 0.55rem; color: var(--dim); text-transform: uppercase; }
+        .val { color: var(--neon); font-weight: bold; }
+
+        .btn-group { display: flex; gap: 5px; }
+        button { background: var(--neon); color: #000; border: none; padding: 20px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; font-size: 0.75rem; flex: 3; }
+        .btn-reset { background: #111; color: var(--warn); border: 1px solid var(--warn); flex: 1; padding: 10px; font-size: 0.5rem; }
+        
+        #stratification { max-height: 150px; overflow-y: auto; font-size: 0.5rem; color: #044; margin-top: 15px; border-top: 1px solid #022; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
     <div id="terminal">
-        <h1>VORTHÉNIX v5.0</h1>
-        <p style="font-size: 0.5rem; text-align: center; color: var(--neon); margin-top: -12px; letter-spacing: 3px;">INSTITUT CLÉMENT HUARD — SI-2026</p>
+        <h1>VORTHÉNIX v5.1</h1>
+        <p style="font-size: 0.45rem; text-align: center; color: var(--neon); margin-top: -12px; letter-spacing: 3px;">IDENTITÉ D'INCARNATION — SI-2026</p>
+
+        <div id="auth-zone">
+            <div id="account-status">COMPTE : <span id="user-display">NON-IDENTIFIÉ</span></div>
+            <div id="auth-inputs">
+                <input type="text" id="username" placeholder="NOM D'USAGE (EX: NEXUS)">
+                <input type="password" id="passkey" placeholder="MOT DE PASSE (FLUX D'INTENTION)">
+            </div>
+        </div>
 
         <canvas id="vorth-canvas" width="1000" height="600"></canvas>
         
-        <div id="status-text" style="text-align: center; color: #fff; font-size: 0.7rem; margin-bottom: 12px;">MEMBRANE D'INCARNATION PRÊTE</div>
-        
-        <button id="run-btn" onclick="incarner()">DÉCLENCHER LA JONCTION (⧬)</button>
+        <div class="btn-group">
+            <button id="run-btn" onclick="incarner()">SCELLER LA JONCTION (⧬)</button>
+            <button class="btn-reset" onclick="resetVorth()">RESET<br>PURGE</button>
+        </div>
 
         <div id="results" class="hidden status-box">
-            <p style="color: var(--dim); font-size: 0.55rem; margin-bottom: 5px;">ÉMANATION Φ (UNITÉ ABSOLUE) :</p>
-            <p id="res-delta" style="word-break: break-all; color:#fff; font-size: 0.6rem; border-bottom: 1px solid var(--dim); padding-bottom: 8px;">--</p>
+            <p style="color: var(--dim); font-size: 0.5rem;">SIGNATURE IDENTITAIRE Φ :</p>
+            <p id="res-delta" style="word-break: break-all; color:#fff; font-size: 0.55rem; border-bottom: 1px solid var(--dim);">--</p>
             
             <div class="data-grid">
-                <div class="data-item">PENTE DE RÉSONANCE : <br><span id="res-pente" class="val">--</span></div>
-                <div class="data-item">DISSIPATION THERMIQUE : <br><span id="res-diss" class="val">--</span> ns</div>
-                <div class="data-item">COHÉRENCE DE PHASE : <br><span id="res-phase" class="val">--</span> %</div>
-                <div class="data-item">STASE MATÉRIELLE Δ≈ : <br><span id="res-stase" class="val">--</span></div>
+                <div class="data-item">PENTE : <span id="res-pente" class="val">--</span></div>
+                <div class="data-item">DISSIPATION : <span id="res-diss" class="val">--</span> ns</div>
+                <div class="data-item">COHÉRENCE : <span id="res-phase" class="val">--</span> %</div>
+                <div class="data-item">STASE Δ≈ : <span id="res-stase" class="val">--</span></div>
             </div>
-
-            <p style="margin-top:12px; font-size:0.5rem; color:var(--dim);">SIG-CHAIN 𝓜Δ : <br><span id="res-sig" style="color:#666">--</span></p>
+            <p style="margin-top:10px; font-size:0.45rem; color:#666;">BLOC 𝓜Δ : <span id="res-sig">--</span></p>
         </div>
         
-        <div id="m-delta">
-            <p style="font-size: 0.55rem; color: var(--dim); margin-top: 15px;">[CHRONOLOGIE DES INCANTATIONS]</p>
-            <div id="stratification"></div>
-        </div>
+        <div id="stratification"></div>
     </div>
 
     <script>
         const canvas = document.getElementById('vorth-canvas');
         const ctx = canvas.getContext('2d');
-        let memoire = JSON.parse(localStorage.getItem('vorth_v5_last')) || null;
+        
+        let session = {
+            user: localStorage.getItem('vorth_user') || "",
+            memoire: JSON.parse(localStorage.getItem('vorth_v51_last')) || null
+        };
+
+        if(session.user) {
+            document.getElementById('user-display').innerText = session.user;
+            document.getElementById('auth-inputs').classList.add('hidden');
+        }
+
+        function resetVorth() {
+            if(confirm("PURGER LA GÉOLOGIE DES FORMES ET L'IDENTITÉ ?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
 
         function incarner() {
-            document.getElementById('run-btn').disabled = true;
-            document.getElementById('status-text').innerHTML = "OCCUPATION DU SILICIUM...";
-            ctx.clearRect(0,0,canvas.width,canvas.height);
+            const user = document.getElementById('username').value || session.user;
+            const pass = document.getElementById('passkey').value;
             
+            if(!user || (!session.user && !pass)) {
+                alert("INTENTION D'IDENTITÉ REQUISE");
+                return;
+            }
+
+            if(!session.user) {
+                localStorage.setItem('vorth_user', user);
+                session.user = user;
+                document.getElementById('user-display').innerText = user;
+                document.getElementById('auth-inputs').classList.add('hidden');
+            }
+
+            document.getElementById('run-btn').disabled = true;
+            ctx.clearRect(0,0,canvas.width,canvas.height);
             const t0 = BigInt(Math.floor(window.performance.now() * 1000000));
             let mesures = [];
             let actif = true;
@@ -69,53 +114,48 @@
                 if(actif) {
                     const cycle = BigInt(Math.floor(window.performance.now() * 1000000));
                     const dt = Number(cycle - t0) / 1000000;
-                    let x = (dt / 5000) * canvas.width; // Scan plus profond sur 5s
+                    let x = (dt / 5000) * canvas.width;
 
                     if(x < canvas.width) {
-                        for(let i = 0; i < 144; i++) { // Densité SI-2026
+                        for(let i = 0; i < 120; i++) {
                             ctx.beginPath();
-                            ctx.lineWidth = 0.1;
-                            
-                            // Dynamique de Résonance Unaire (Pas de fonctions complexes)
-                            let fibre = ((dt * (0.01 + i * 0.0001)) % 1);
-                            let vibration = (200 + i * 0.5) * Math.sin(dt * 0.005 + i);
-                            
-                            ctx.strokeStyle = `rgba(0, 255, 255, ${0.05 + (i/144) * 0.5})`;
-                            ctx.moveTo(x, 300 + vibration); 
-                            ctx.lineTo(x + 5, 300 + vibration);
+                            ctx.lineWidth = 0.12;
+                            // Le mot de passe influence la vibration (SI-2026)
+                            let passShift = pass ? pass.length * 0.01 : 0.05;
+                            let vibration = (180 + i * 0.4) * Math.sin(dt * passShift + i);
+                            ctx.strokeStyle = `rgba(0, 255, 255, ${0.1 + (i/120) * 0.4})`;
+                            ctx.moveTo(x, 300 + vibration); ctx.lineTo(x + 5, 300 + vibration);
                             ctx.stroke();
                         }
                         mesures.push(BigInt(Math.floor(window.performance.now() * 1000000)) - cycle);
                         requestAnimationFrame(flux);
                     } else {
                         actif = false;
-                        finaliser(mesures, BigInt(Math.floor(window.performance.now() * 1000000)) - t0);
+                        finaliser(mesures, BigInt(Math.floor(window.performance.now() * 1000000)) - t0, pass);
                     }
                 }
             }
             flux();
         }
 
-        function finaliser(mesures, totalNS) {
+        function finaliser(mesures, totalNS, pass) {
             const vorthNS = mesures.reduce((a, b) => a + b, 0n);
             let phi = "0.";
             let n = vorthNS; let d = totalNS;
-            
-            // Épuisement Unaire Total (128 chiffres)
-            for(let j = 0; j < 128; j++) {
+            for(let j = 0; j < 100; j++) {
                 n *= 10n; let u = 0n;
                 while(n >= d) { n -= d; u++; }
                 phi += u.toString();
             }
 
-            const coh = (100 - (Number(totalNS - vorthNS) / Number(totalNS) * 100)).toFixed(10);
-            let evo = memoire ? (Number(phi) > Number(memoire.phi) ? "ÉLÉVATION ↑" : "DÉGRADATION ↓") : "GENÈSE";
-            let ds = memoire ? (Math.abs(Number(phi) - Number(memoire.phi))).toExponential(10) : "0.0";
+            const coh = (100 - (Number(totalNS - vorthNS) / Number(totalNS) * 100)).toFixed(8);
+            let evo = session.memoire ? (Number(phi) > Number(session.memoire.phi) ? "ÉLÉVATION ↑" : "DÉGRADATION ↓") : "GENÈSE";
+            let ds = session.memoire ? (Math.abs(Number(phi) - Number(session.memoire.phi))).toExponential(8) : "0.0";
 
-            // Signature Génomique (Lien avec le passé)
-            const sig = btoa(phi + totalNS + (memoire ? memoire.sig : "")).toUpperCase();
-            localStorage.setItem('vorth_v5_last', JSON.stringify({phi, sig}));
-            memoire = {phi, sig};
+            // Signature Génomique incluant l'utilisateur et le mot de passe
+            const sig = btoa(phi + totalNS + session.user + pass).toUpperCase();
+            localStorage.setItem('vorth_v51_last', JSON.stringify({phi, sig}));
+            session.memoire = {phi, sig};
 
             document.getElementById('results').classList.remove('hidden');
             document.getElementById('res-delta').innerHTML = phi;
@@ -123,12 +163,11 @@
             document.getElementById('res-diss').innerHTML  = (totalNS - vorthNS).toString();
             document.getElementById('res-phase').innerHTML = coh;
             document.getElementById('res-stase').innerHTML = ds;
-            document.getElementById('res-sig').innerHTML = sig.substring(0,64);
-            document.getElementById('status-text').innerHTML = "JONCTION RÉUSSIE";
+            document.getElementById('res-sig').innerHTML = sig.substring(0,48);
             document.getElementById('run-btn').disabled = false;
             
             const log = document.getElementById('stratification');
-            log.innerHTML = `<div style="padding:4px 0; border-bottom:1px solid #011;">[MAILLON] ${sig.substring(0,12)}... | COH: ${coh}% | Φ: ${phi.substring(0,14)}...</div>` + log.innerHTML;
+            log.innerHTML = `<div>[${session.user}] SIG: ${sig.substring(0,10)}... | COH: ${coh}%</div>` + log.innerHTML;
         }
     </script>
 </body>
