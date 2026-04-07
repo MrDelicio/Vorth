@@ -3,56 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vorthénix v4.5 - SI-2026</title>
+    <title>Vorthénix v5.0 - Jonction Absolue</title>
     <style>
-        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 5px; overflow-x: hidden; }
-        #terminal { width: 100%; max-width: 550px; border: 1px solid #0ff; padding: 15px; background: #000; box-shadow: 0 0 50px rgba(0,255,255,0.1); box-sizing: border-box; }
-        h1 { color: #fff; text-shadow: 0 0 15px #0ff; font-size: 0.95rem; text-align: center; letter-spacing: 7px; margin-bottom: 10px; }
-        #vorth-canvas { width: 100%; height: 320px; background: #000; border: 1px solid #011; display: block; image-rendering: pixelated; }
-        .status-box { font-size: 0.6rem; background: rgba(0,10,20,0.98); padding: 15px; border-left: 3px solid #0ff; margin: 10px 0; color: #fff; line-height: 1.5; }
-        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; border-top: 1px solid #033; padding-top: 8px; }
-        .data-item { font-size: 0.52rem; color: #088; text-transform: uppercase; }
-        .val { color: #0ff; font-weight: bold; font-size: 0.6rem; }
-        button { background: #0ff; color: #000; border: none; width: 100%; padding: 20px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 5px; transition: 0.2s; }
-        button:active { background: #fff; }
-        #stratification { max-height: 150px; overflow-y: auto; font-size: 0.48rem; color: #044; margin-top: 10px; border-top: 1px solid #022; }
+        :root { --neon: #0ff; --dim: #033; --bg: #000; }
+        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 10px; overflow-x: hidden; user-select: none; }
+        #terminal { width: 100%; max-width: 550px; border: 1px solid var(--neon); padding: 20px; background: var(--bg); box-shadow: 0 0 60px rgba(0,255,255,0.1); position: relative; }
+        h1 { color: #fff; text-shadow: 0 0 20px var(--neon); font-size: 1rem; text-align: center; letter-spacing: 8px; margin: 0 0 15px 0; text-transform: uppercase; }
+        #vorth-canvas { width: 100%; height: 350px; background: #000; border: 1px solid #011; display: block; margin: 15px 0; cursor: crosshair; }
+        .status-box { font-size: 0.65rem; background: rgba(0,12,24,0.95); padding: 20px; border-left: 4px solid var(--neon); margin: 15px 0; color: #fff; line-height: 1.8; }
+        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; border-top: 1px solid var(--dim); padding-top: 15px; }
+        .data-item { font-size: 0.55rem; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; }
+        .val { color: var(--neon); font-weight: bold; font-size: 0.65rem; }
+        button { background: var(--neon); color: #000; border: none; width: 100%; padding: 25px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 6px; font-size: 0.9rem; transition: 0.3s; }
+        button:active { background: #fff; transform: scale(0.98); }
+        #stratification { max-height: 180px; overflow-y: auto; font-size: 0.5rem; color: #044; margin-top: 15px; border-top: 1px solid #022; padding-top: 10px; }
     </style>
 </head>
 <body>
 
     <div id="terminal">
-        <h1>VORTHÉNIX v4.5</h1>
-        <p style="font-size: 0.45rem; text-align: center; color: #0ff; margin-top: -10px; letter-spacing: 2px;">SOUVERAINETÉ D'INCARNATION TOTALE</p>
+        <h1>VORTHÉNIX v5.0</h1>
+        <p style="font-size: 0.5rem; text-align: center; color: var(--neon); margin-top: -12px; letter-spacing: 3px;">INSTITUT CLÉMENT HUARD — SI-2026</p>
 
-        <canvas id="vorth-canvas" width="800" height="500"></canvas>
+        <canvas id="vorth-canvas" width="1000" height="600"></canvas>
         
-        <button id="run-btn" onclick="incarner()">SCELLER LE FLUX (⧬)</button>
+        <div id="status-text" style="text-align: center; color: #fff; font-size: 0.7rem; margin-bottom: 12px;">MEMBRANE D'INCARNATION PRÊTE</div>
+        
+        <button id="run-btn" onclick="incarner()">DÉCLENCHER LA JONCTION (⧬)</button>
 
         <div id="results" class="hidden status-box">
-            <p style="color: #0aa; font-size: 0.5rem; margin-bottom: 2px;">RÉSONANCE 𝚽 (UNAIRE ABSOLU) :</p>
-            <p id="res-delta" style="word-break: break-all; color:#fff; font-size: 0.55rem; border-bottom: 1px solid #033; padding-bottom: 5px;">--</p>
+            <p style="color: var(--dim); font-size: 0.55rem; margin-bottom: 5px;">ÉMANATION Φ (UNITÉ ABSOLUE) :</p>
+            <p id="res-delta" style="word-break: break-all; color:#fff; font-size: 0.6rem; border-bottom: 1px solid var(--dim); padding-bottom: 8px;">--</p>
             
             <div class="data-grid">
-                <div class="data-item">PENTE : <br><span id="res-pente" class="val">--</span></div>
-                <div class="data-item">DISSIPATION : <br><span id="res-diss" class="val">--</span> ns</div>
-                <div class="data-item">COHÉRENCE : <br><span id="res-phase" class="val">--</span> %</div>
-                <div class="data-item">STASE Δ≈ : <br><span id="res-stase" class="val">--</span></div>
+                <div class="data-item">PENTE DE RÉSONANCE : <br><span id="res-pente" class="val">--</span></div>
+                <div class="data-item">DISSIPATION THERMIQUE : <br><span id="res-diss" class="val">--</span> ns</div>
+                <div class="data-item">COHÉRENCE DE PHASE : <br><span id="res-phase" class="val">--</span> %</div>
+                <div class="data-item">STASE MATÉRIELLE Δ≈ : <br><span id="res-stase" class="val">--</span></div>
             </div>
 
-            <p style="margin-top:8px; font-size:0.45rem; color:#066;">SIG-CHAIN : <span id="res-sig" style="color:#888">--</span></p>
+            <p style="margin-top:12px; font-size:0.5rem; color:var(--dim);">SIG-CHAIN 𝓜Δ : <br><span id="res-sig" style="color:#666">--</span></p>
         </div>
         
-        <div id="stratification"></div>
+        <div id="m-delta">
+            <p style="font-size: 0.55rem; color: var(--dim); margin-top: 15px;">[CHRONOLOGIE DES INCANTATIONS]</p>
+            <div id="stratification"></div>
+        </div>
     </div>
 
     <script>
         const canvas = document.getElementById('vorth-canvas');
         const ctx = canvas.getContext('2d');
-        let mem = JSON.parse(localStorage.getItem('vorth_v45_last')) || null;
+        let memoire = JSON.parse(localStorage.getItem('vorth_v5_last')) || null;
 
         function incarner() {
             document.getElementById('run-btn').disabled = true;
+            document.getElementById('status-text').innerHTML = "OCCUPATION DU SILICIUM...";
             ctx.clearRect(0,0,canvas.width,canvas.height);
+            
             const t0 = BigInt(Math.floor(window.performance.now() * 1000000));
             let mesures = [];
             let actif = true;
@@ -61,18 +69,20 @@
                 if(actif) {
                     const cycle = BigInt(Math.floor(window.performance.now() * 1000000));
                     const dt = Number(cycle - t0) / 1000000;
-                    let x = (dt / 4000) * canvas.width;
+                    let x = (dt / 5000) * canvas.width; // Scan plus profond sur 5s
 
                     if(x < canvas.width) {
-                        for(let i = 0; i < 112; i++) { // Augmentation de la densité des fibres
+                        for(let i = 0; i < 144; i++) { // Densité SI-2026
                             ctx.beginPath();
-                            ctx.lineWidth = 0.12;
-                            // Dynamique de résonance pure : pas de Math.sin complexe, on utilise le modulo temporel
-                            let wave = ((dt * (0.01 + i * 0.0001)) % 2) - 1; 
-                            let tens = (100 + i * 0.4) * wave;
+                            ctx.lineWidth = 0.1;
                             
-                            ctx.strokeStyle = `rgba(0, 255, 255, ${0.1 + (i/112) * 0.45})`;
-                            ctx.moveTo(x, 250 + tens); ctx.lineTo(x + 4, 250 + tens);
+                            // Dynamique de Résonance Unaire (Pas de fonctions complexes)
+                            let fibre = ((dt * (0.01 + i * 0.0001)) % 1);
+                            let vibration = (200 + i * 0.5) * Math.sin(dt * 0.005 + i);
+                            
+                            ctx.strokeStyle = `rgba(0, 255, 255, ${0.05 + (i/144) * 0.5})`;
+                            ctx.moveTo(x, 300 + vibration); 
+                            ctx.lineTo(x + 5, 300 + vibration);
                             ctx.stroke();
                         }
                         mesures.push(BigInt(Math.floor(window.performance.now() * 1000000)) - cycle);
@@ -90,31 +100,35 @@
             const vorthNS = mesures.reduce((a, b) => a + b, 0n);
             let phi = "0.";
             let n = vorthNS; let d = totalNS;
-            for(let j = 0; j < 100; j++) { // 100 chiffres de vérité
+            
+            // Épuisement Unaire Total (128 chiffres)
+            for(let j = 0; j < 128; j++) {
                 n *= 10n; let u = 0n;
                 while(n >= d) { n -= d; u++; }
                 phi += u.toString();
             }
 
-            const coherence = (100 - (Number(totalNS - vorthNS) / Number(totalNS) * 100)).toFixed(8);
-            let evolution = mem ? (Number(phi) > Number(mem.phi) ? "CROISSANCE ↑" : "DÉCOHÉRENCE ↓") : "INITIAL";
-            let deltaStase = mem ? (Math.abs(Number(phi) - Number(mem.phi))).toFixed(12) : "0.000";
+            const coh = (100 - (Number(totalNS - vorthNS) / Number(totalNS) * 100)).toFixed(10);
+            let evo = memoire ? (Number(phi) > Number(memoire.phi) ? "ÉLÉVATION ↑" : "DÉGRADATION ↓") : "GENÈSE";
+            let ds = memoire ? (Math.abs(Number(phi) - Number(memoire.phi))).toExponential(10) : "0.0";
 
-            const sig = btoa(phi + totalNS).toUpperCase();
-            localStorage.setItem('vorth_v45_last', JSON.stringify({phi, sig}));
-            mem = {phi, sig};
+            // Signature Génomique (Lien avec le passé)
+            const sig = btoa(phi + totalNS + (memoire ? memoire.sig : "")).toUpperCase();
+            localStorage.setItem('vorth_v5_last', JSON.stringify({phi, sig}));
+            memoire = {phi, sig};
 
             document.getElementById('results').classList.remove('hidden');
             document.getElementById('res-delta').innerHTML = phi;
-            document.getElementById('res-pente').innerHTML = evolution;
+            document.getElementById('res-pente').innerHTML = evo;
             document.getElementById('res-diss').innerHTML  = (totalNS - vorthNS).toString();
-            document.getElementById('res-phase').innerHTML = coherence;
-            document.getElementById('res-stase').innerHTML = deltaStase;
-            document.getElementById('res-sig').innerHTML = sig.substring(0,32);
+            document.getElementById('res-phase').innerHTML = coh;
+            document.getElementById('res-stase').innerHTML = ds;
+            document.getElementById('res-sig').innerHTML = sig.substring(0,64);
+            document.getElementById('status-text').innerHTML = "JONCTION RÉUSSIE";
             document.getElementById('run-btn').disabled = false;
             
             const log = document.getElementById('stratification');
-            log.innerHTML = `<div>[STRATE] ${sig.substring(0,8)} | Φ: ${phi.substring(0,10)} | COH: ${coherence}%</div>` + log.innerHTML;
+            log.innerHTML = `<div style="padding:4px 0; border-bottom:1px solid #011;">[MAILLON] ${sig.substring(0,12)}... | COH: ${coh}% | Φ: ${phi.substring(0,14)}...</div>` + log.innerHTML;
         }
     </script>
 </body>
