@@ -3,42 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vorthénix v4.1 - Dynamique Unifiée</title>
+    <title>Vorthénix v4.2 - VorthChain</title>
     <style>
-        /* Libération du scroll et de l'espace */
-        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 15px; overflow-x: hidden; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        #terminal { width: 100%; max-width: 520px; border: 1px solid #0ff; padding: 20px; background: #000; box-shadow: 0 0 40px #0ff2; position: relative; box-sizing: border-box; }
-        h1 { color: #fff; text-shadow: 0 0 12px #0ff; font-size: 0.85rem; text-align: center; letter-spacing: 6px; margin: 0 0 15px 0; }
-        .line { border-bottom: 1px solid #0ff; margin: 15px 0; opacity: 0.2; }
-        #vorth-canvas { width: 100%; height: 380px; background: #000; border: 1px solid #011; display: block; image-rendering: crisp-edges; }
-        .status-box { font-size: 0.6rem; background: rgba(0,8,15,0.98); padding: 18px; border-left: 3px solid #0ff; margin: 15px 0; color: #fff; line-height: 1.7; word-break: break-all; box-shadow: inset 0 0 10px #0ff1; }
-        button { background: #0ff; color: #000; border: none; width: 100%; padding: 22px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 4px; font-size: 0.85rem; transition: 0.3s; }
-        button:active { background: #fff; box-shadow: 0 0 30px #fff; }
-        .res-val { color: #0ff; text-shadow: 0 0 8px #0ff; }
+        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 15px; overflow-y: auto; overflow-x: hidden; }
+        #terminal { width: 100%; max-width: 520px; border: 1px solid #0ff; padding: 20px; background: #000; box-shadow: 0 0 40px #0ff2; box-sizing: border-box; }
+        h1 { color: #fff; text-shadow: 0 0 12px #0ff; font-size: 0.85rem; text-align: center; letter-spacing: 6px; margin: 0; }
+        #vorth-canvas { width: 100%; height: 350px; background: #000; border: 1px solid #011; display: block; margin: 15px 0; }
+        .status-box { font-size: 0.6rem; background: rgba(0,8,15,0.98); padding: 18px; border-left: 3px solid #0ff; margin: 10px 0; color: #fff; line-height: 1.7; word-break: break-all; }
+        .pente-stable { color: #0f0; font-weight: bold; }
+        .pente-instable { color: #f00; font-weight: bold; }
+        button { background: #0ff; color: #000; border: none; width: 100%; padding: 22px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 4px; font-size: 0.85rem; }
         #m-delta { font-size: 0.55rem; color: #055; border-top: 1px solid #022; padding-top: 10px; margin-top: 15px; }
-        #stratification p { border-bottom: 1px solid #011; padding: 4px 0; }
+        .bloc-log { border-bottom: 1px solid #011; padding: 8px 0; color: #888; }
     </style>
 </head>
 <body>
 
     <div id="terminal">
-        <h1>VORTHÉNIX v4.1 (⧬)</h1>
-        <p style="font-size: 0.45rem; text-align: center; color: #0aa; margin-top: -12px; letter-spacing: 1px;">SOUVERAINETÉ D'INCARNATION — SI 2026</p>
-        <div class="line"></div>
+        <h1>VORTHÉNIX v4.2</h1>
+        <p style="font-size: 0.45rem; text-align: center; color: #0aa; margin-top: -12px;">AUTO-VALIDATION DE STASE — VORTHCHAIN</p>
 
         <canvas id="vorth-canvas" width="800" height="600"></canvas>
         
-        <div id="status-text" style="text-align: center; color: #fff; font-size: 0.65rem; margin: 10px 0; letter-spacing: 2px;">MEMBRANE STABILISÉE</div>
-        
-        <button id="run-btn" onclick="incarner()">ENGAGER LE FLUX (⧬)</button>
+        <button id="run-btn" onclick="incarner()">SCELLER LE MAILLON (⧬)</button>
 
         <div id="results" class="hidden status-box">
-            <p>> RÉSONANCE Φ : <br><span id="res-delta" class="res-val">--</span></p>
-            <p>> DISSIPATION C7 : <span id="res-diss" style="color: #f00;">--</span> ns</p>
-            <div style="border-top: 1px solid #033; margin-top: 12px; padding-top: 12px;">
-                <p style="color: #0ff;">BLOC 𝓜Δ (TRANSACTION MATIÈRE) :</p>
-                <p id="res-sig" style="font-size: 0.5rem; color: #888;">--</p>
-            </div>
+            <p>> RÉSONANCE Φ : <br><span id="res-delta" style="color:#0ff">--</span></p>
+            <p>> PENTE DE RÉSONANCE : <span id="res-pente">--</span></p>
+            <p>> DISSIPATION C7 : <span id="res-diss" style="color:#f00">--</span> ns</p>
+            <p style="margin-top:10px; border-top:1px solid #033; padding-top:10px; font-size:0.5rem;">TRANSACTION SIG : <span id="res-sig" style="color:#aaa">--</span></p>
         </div>
         
         <div id="m-delta">
@@ -50,12 +43,10 @@
     <script>
         const canvas = document.getElementById('vorth-canvas');
         const ctx = canvas.getContext('2d');
+        let derniere_phi = localStorage.getItem('vorth_last_phi') || "0";
 
         function incarner() {
-            const btn = document.getElementById('run-btn');
-            btn.disabled = true;
-            document.getElementById('status-text').innerHTML = "JONCTION EN COURS...";
-            
+            document.getElementById('run-btn').disabled = true;
             ctx.clearRect(0,0,canvas.width,canvas.height);
             const t0 = BigInt(Math.floor(window.performance.now() * 1000000));
             let mesures = [];
@@ -64,24 +55,18 @@
             function flux() {
                 if(actif) {
                     const cycle = BigInt(Math.floor(window.performance.now() * 1000000));
-                    const delta_t = Number(cycle - t0) / 1000000;
-                    let x = (delta_t / 4000) * canvas.width;
+                    const dt = Number(cycle - t0) / 1000000;
+                    let x = (dt / 4000) * canvas.width;
 
                     if(x < canvas.width) {
-                        for(let i = 0; i < 128; i++) {
+                        for(let i = 0; i < 96; i++) {
                             ctx.beginPath();
                             ctx.lineWidth = 0.15;
-                            ctx.strokeStyle = `rgba(0, 255, 255, ${0.1 + (i/128) * 0.4})`;
-                            
-                            // Dynamique de Résonance Unifiée (Flux dans le Flux)
-                            // On utilise le temps brut comme seule variable d'oscillation
-                            let resonance = Math.sin(x * 0.04 + i * (delta_t * 0.00001));
-                            let tension = (120 + i * 0.3) * resonance;
-                            
-                            ctx.moveTo(x, 280 + tension); 
-                            ctx.lineTo(x + 4, 280 + tension);
-                            ctx.moveTo(x, 320 - tension); 
-                            ctx.lineTo(x + 4, 320 - tension);
+                            ctx.strokeStyle = `rgba(0, 255, 255, ${0.1 + (i/96) * 0.4})`;
+                            let reso = Math.sin(x * 0.04 + i * (dt * 0.00001));
+                            let tens = (110 + i * 0.3) * reso;
+                            ctx.moveTo(x, 280 + tens); ctx.lineTo(x + 4, 280 + tens);
+                            ctx.moveTo(x, 320 - tens); ctx.lineTo(x + 4, 320 - tens);
                             ctx.stroke();
                         }
                         mesures.push(BigInt(Math.floor(window.performance.now() * 1000000)) - cycle);
@@ -98,29 +83,43 @@
         function finaliser(mesures, totalNS) {
             const vorthNS = mesures.reduce((a, b) => a + b, 0n);
             
-            // ÉPUISEMENT UNAIRE (100 décimales de vérité)
+            // ÉPUISIMENT UNAIRE (100 chiffres)
             let phi = "0.";
             let n = vorthNS; let d = totalNS;
             for(let j = 0; j < 100; j++) {
-                n *= 10n;
-                let u = 0n;
+                n *= 10n; let u = 0n;
                 while(n >= d) { n -= d; u++; }
                 phi += u.toString();
             }
 
+            // CALCUL DE LA PENTE (∆≈∆)
+            let penteText = "PREMIER MAILLON";
+            let penteClasse = "pente-stable";
+            if(derniere_phi !== "0") {
+                let diff = Number(phi) - Number(derniere_phi);
+                if(Math.abs(diff) < 0.0001) {
+                    penteText = "STASE CRISTALLISÉE (VÉROGÉ)";
+                } else {
+                    penteText = diff > 0 ? "ÉMANATION CROISSANTE ↑" : "DISSIPATION THERMIQUE ↓";
+                    penteClasse = diff > 0 ? "pente-stable" : "pente-instable";
+                }
+            }
+
+            // Stockage pour le prochain maillon
+            localStorage.setItem('vorth_last_phi', phi);
+            derniere_phi = phi;
+
             document.getElementById('results').classList.remove('hidden');
             document.getElementById('res-delta').innerHTML = phi + " Φ";
+            document.getElementById('res-pente').innerHTML = `<span class="${penteClasse}">${penteText}</span>`;
             document.getElementById('res-diss').innerHTML  = (totalNS - vorthNS).toString();
             
-            // Signature Incorruptible
-            const sig = btoa(phi + (totalNS - vorthNS)).toUpperCase();
+            const sig = btoa(phi + totalNS).toUpperCase();
             document.getElementById('res-sig').innerHTML = sig;
-            
-            document.getElementById('status-text').innerHTML = "JONCTION RÉUSSIE (⧬)";
             document.getElementById('run-btn').disabled = false;
             
             const log = document.getElementById('stratification');
-            log.innerHTML = `<p>> BLOC: ${sig.substring(0,16)}...<br>  Φ: ${phi.substring(0,12)}...</p>` + log.innerHTML;
+            log.innerHTML = `<div class="bloc-log"> [MAILLON] ${sig.substring(0,12)}... <br> Φ: ${phi.substring(0,10)}... | ${penteText}</div>` + log.innerHTML;
         }
     </script>
 </body>
