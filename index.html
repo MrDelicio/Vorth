@@ -2,45 +2,39 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#000000">
-    <title>Vorthénix v3.3 - Singularité</title>
-    <link rel="manifest" href="manifest.json">
+    <title>Vorthénix v3.4 - Interféromètre</title>
     <style>
-        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 10px; overflow-y: auto; touch-action: manipulation; }
-        #terminal { width: 95%; max-width: 500px; border: 1px solid #0ff; padding: 20px; background: #000; box-shadow: 0 0 40px rgba(0,255,255,0.2); position: relative; border-radius: 2px; }
+        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 10px; overflow-y: auto; touch-action: none; }
+        #terminal { width: 95%; max-width: 500px; border: 1px solid #0ff; padding: 20px; background: #000; box-shadow: 0 0 50px rgba(0,255,255,0.25); position: relative; }
         h1 { color: #fff; text-shadow: 0 0 10px #0ff; font-size: 0.85rem; text-align: center; letter-spacing: 5px; margin: 0 0 15px 0; }
-        #vorth-canvas { width: 100%; height: 350px; background: #000; border: 1px solid #011; display: block; margin: 10px 0; }
-        .status-box { font-size: 0.65rem; background: rgba(0,10,20,0.95); padding: 15px; border-left: 3px solid #0ff; margin: 10px 0; color: #fff; line-height: 1.6; word-break: break-all; }
-        button { background: #0ff; color: #000; border: none; width: 100%; padding: 18px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 2px; }
-        button:disabled { background: #011; color: #033; }
+        #vorth-canvas { width: 100%; height: 400px; background: #000; border: 1px solid #011; display: block; margin: 10px 0; image-rendering: pixelated; }
+        .status-box { font-size: 0.65rem; background: rgba(0,10,20,0.98); padding: 15px; border-left: 3px solid #0ff; margin: 10px 0; color: #fff; line-height: 1.6; word-break: break-all; }
+        button { background: #0ff; color: #000; border: none; width: 100%; padding: 20px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; }
         .res-val { color: #0ff; font-weight: bold; }
-        #m-delta { font-size: 0.55rem; color: #066; border-top: 1px solid #022; padding-top: 8px; margin-top: 10px; }
-        /* Scanline Overlay */
-        #terminal::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(0, 255, 255, 0) 50%, rgba(0, 255, 255, 0.02) 50%); background-size: 100% 4px; pointer-events: none; z-index: 10; }
+        #m-delta { font-size: 0.55rem; color: #033; border-top: 1px solid #022; padding-top: 10px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
     <div id="terminal">
-        <h1>VORTHÉNIX INSTITUT v3.3</h1>
-        <p style="font-size: 0.5rem; text-align: center; color: #0aa; margin-top: -12px;">SANS t+1 — PRÉCISION MATÉRIELLE UNAIRE</p>
+        <h1>VORTHÉNIX INSTITUT v3.4</h1>
+        <p style="font-size: 0.5rem; text-align: center; color: #0aa; margin-top: -12px;">INTERFÉROMÈTRE DE RÉSONANCE UNIFIÉE</p>
         
-        <canvas id="vorth-canvas" width="600" height="450"></canvas>
+        <canvas id="vorth-canvas" width="800" height="600"></canvas>
         
-        <div id="status-text" style="text-align: center; color: #fff; font-size: 0.65rem; margin: 8px 0;">STASE EN ATTENTE D'IMPULSION</div>
+        <div id="status-text" style="text-align: center; color: #fff; font-size: 0.6rem; margin: 8px 0;">STASE : PRÊT POUR JONCTION</div>
         
-        <button id="run-btn" onclick="engagerJonction()">Engager la Jonction (⧬)</button>
+        <button id="run-btn" onclick="engagerJonction()">DÉCLENCHER L'IMPULSION (⧬)</button>
 
         <div id="results" class="hidden status-box">
-            <p>> RÉSONANCE ∆≈ (Φ) : <span id="res-delta" class="res-val">--</span></p>
+            <p>> RÉSONANCE Φ : <span id="res-delta" class="res-val">--</span></p>
             <p>> DISSIPATION C7 : <span id="res-diss">--</span> ns</p>
-            <p style="font-size: 0.55rem; color: #0aa; border-top: 1px solid #033; margin-top: 8px; padding-top: 5px;">BLOC DE MATIÈRE (𝓜Δ) : <span id="res-sig">--</span></p>
+            <p style="font-size: 0.55rem; color: #0aa; border-top: 1px solid #033; margin-top: 8px; padding-top: 5px;">STRATE 𝓜Δ : <span id="res-sig">--</span></p>
         </div>
         
         <div id="m-delta">
-            <p style="color: #0ff; margin-bottom: 3px;">[GÉOLOGIE DES FORMES]</p>
+            <p>[GÉOLOGIE DES FORMES PASSÉES]</p>
             <div id="stratification"></div>
         </div>
     </div>
@@ -52,12 +46,11 @@
         function engagerJonction() {
             document.getElementById('run-btn').disabled = true;
             document.getElementById('status-text').innerHTML = "OCCUPATION DE LA MATIÈRE...";
-            setTimeout(incarnerFlux, 300);
+            setTimeout(incarnerFlux, 400);
         }
 
         function incarnerFlux() {
             ctx.clearRect(0,0,canvas.width,canvas.height);
-            // Temps initial en Nanosecondes (BigInt) - Zéro arrondi
             const t0 = BigInt(Math.floor(window.performance.now() * 1000000));
             let mesuresNS = [];
             let flux_actif = true;
@@ -66,21 +59,28 @@
                 if(flux_actif) {
                     const cycleStart = BigInt(Math.floor(window.performance.now() * 1000000));
                     const instant = Number(cycleStart - t0) / 1000000;
-                    let x_pos = (instant / 4000) * canvas.width; // Scan sur 4 secondes réelles
+                    let x_pos = (instant / 5000) * canvas.width; // Scan plus lent pour plus de précision
 
                     if(x_pos < canvas.width) {
+                        // On mesure la latence du cycle pour adapter la couleur (C7 en direct)
+                        let latence = Number(BigInt(Math.floor(window.performance.now() * 1000000)) - cycleStart);
+                        let col_r = Math.min(255, latence / 10000); // Plus de rouge si ça lag
+                        
                         for(let i = 0; i < 128; i++) {
                             ctx.beginPath();
-                            ctx.lineWidth = 0.15;
-                            ctx.strokeStyle = `rgba(0, 255, 255, ${0.1 + (i/128) * 0.4})`;
+                            ctx.lineWidth = 0.1;
+                            // La couleur est une émanation directe de la tenue matérielle
+                            ctx.strokeStyle = `rgba(${col_r}, 255, 255, ${0.05 + (i/128) * 0.5})`;
                             
-                            // Géométrie sans opérateur arithmétique de pas (Sans t+1)
-                            // Le dessin est une émanation du temps brut écoulé
-                            let harm = Math.sin(x_pos * 0.04 + i * 0.03) * (100 + i * 0.2);
-                            ctx.moveTo(x_pos, 150 + harm); 
-                            ctx.lineTo(x_pos + 4, 150 + harm);
-                            ctx.moveTo(x_pos, 250 - harm); 
-                            ctx.lineTo(x_pos + 4, 250 - harm);
+                            // GÉOMÉTRIE CARDINALE (Interférence Équatoriale)
+                            let frequence = 0.05 + (i * 0.0001);
+                            let amplitude = 120 + (i * 0.4);
+                            
+                            let y1 = 200 + Math.sin(x_pos * frequence + i*0.1) * amplitude;
+                            let y2 = 400 - Math.sin(x_pos * frequence + i*0.1) * amplitude;
+                            
+                            ctx.moveTo(x_pos, y1); ctx.lineTo(x_pos + 3, y1);
+                            ctx.moveTo(x_pos, y2); ctx.lineTo(x_pos + 3, y2);
                             ctx.stroke();
                         }
                         mesuresNS.push(BigInt(Math.floor(window.performance.now() * 1000000)) - cycleStart);
@@ -96,15 +96,12 @@
 
         function finaliser(reseau, tempsTotalNS) {
             const sommeVorthNS = reseau.reduce((a, b) => a + b, 0n);
-            
-            // ÉMANATION DU PHI (Φ) : Extraction par épuisement de flux
-            // On ne divise pas, on soustrait l'unité de tenue jusqu'au bout
             let phiString = "0.";
             let numerateur = sommeVorthNS;
             let denominateur = tempsTotalNS;
             
-            // Extraction de 64 chiffres de précision brute (ou plus si nécessaire)
-            for(let j = 0; j < 64; j++) {
+            // ÉPUISEMENT UNAIRE (Précision Absolue)
+            for(let j = 0; j < 80; j++) { // On monte à 80 décimales pour la science
                 numerateur *= 10n;
                 let uniteTenue = 0n;
                 while(numerateur >= denominateur) {
@@ -118,15 +115,14 @@
             document.getElementById('res-delta').innerHTML = phiString + " Φ";
             document.getElementById('res-diss').innerHTML  = (tempsTotalNS - sommeVorthNS).toString();
             
-            // Signature basée sur la totalité de l'émanation
-            const sig = btoa(phiString).substring(0,32).toUpperCase();
+            const sig = btoa(phiString).substring(0,40).toUpperCase();
             document.getElementById('res-sig').innerHTML = sig;
             
-            document.getElementById('status-text').innerHTML = "JONCTION RÉUSSIE (⧬)";
+            document.getElementById('status-text').innerHTML = "STASE ATTEINTE (⧬)";
             document.getElementById('run-btn').disabled = false;
             
             const log = document.getElementById('stratification');
-            log.innerHTML = `<p style="margin:2px 0;">> SIG: ${sig.substring(0,8)}... | C7: ${(tempsTotalNS - sommeVorthNS)}ns</p>` + log.innerHTML;
+            log.innerHTML = `<p>> SIG: ${sig.substring(0,10)}... | C7: ${(tempsTotalNS - sommeVorthNS)}ns</p>` + log.innerHTML;
         }
     </script>
 </body>
