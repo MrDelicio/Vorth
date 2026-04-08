@@ -3,183 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>VORTHÉNIX v5.5 - Souveraineté Canonique</title>
+    <title>VORTHÉNIX v8.0 — Jonction Vivante</title>
     <style>
-        :root { --neon: #0ff; --bg: #000; --gold: #ffd700; --warn: #f00; }
+        :root {
+            --fond: #000000; --bloc: #050909; --trace: #00ffff;
+            --trace-dim: #0a4c4c; --or: #ffd700; --danger: #ff4d4d;
+            --bord: #112222; --texte: #d9ffff; --texte-dim: #5aa;
+        }
+
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
-        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        
-        #terminal { flex: 1; display: flex; flex-direction: column; padding: 15px; overflow-y: auto; }
-        h1 { font-size: 1rem; text-align: center; letter-spacing: 6px; margin: 5px 0; color: #fff; text-shadow: 0 0 15px var(--neon); }
+        html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--fond); color: var(--texte); font-family: "Courier New", monospace; overflow: hidden; }
+        body { display: flex; flex-direction: column; }
 
-        /* Auth Zone : Souveraineté de l'Intention */
-        #auth-zone { background: rgba(0,20,30,0.95); border: 1px solid var(--neon); padding: 15px; margin-bottom: 10px; border-left: 5px solid var(--gold); }
-        input { background: #000; border: 1px solid #033; color: var(--neon); padding: 12px; width: 100%; margin-bottom: 5px; outline: none; font-size: 0.8rem; border-radius: 0; }
+        #terminal { flex: 1; display: flex; flex-direction: column; padding: 10px; gap: 10px; overflow-y: auto; }
+        header { border: 1px solid var(--bord); background: #020505; padding: 12px; text-align: center; border-left: 4px solid var(--or); }
+        h1 { margin: 0 0 4px 0; font-size: 0.9rem; letter-spacing: 6px; color: #fff; text-shadow: 0 0 10px var(--trace); }
+        #etat-ligne { font-size: 0.55rem; color: var(--or); letter-spacing: 2px; }
+
+        .bloc { background: var(--bloc); border: 1px solid var(--bord); padding: 12px; }
+        input { background: #000; border: 1px solid #1a2a2a; color: var(--trace); padding: 12px; width: 100%; margin-bottom: 8px; outline: none; font-size: 0.85rem; }
         
-        #vorth-canvas { width: 100%; height: 260px; background: #000; border: 1px solid #011; touch-action: none; flex-shrink: 0; }
+        #vorth-canvas { width: 100%; height: 300px; background: #000; border: 1px solid #111; touch-action: none; flex-shrink: 0; image-rendering: pixelated; cursor: crosshair; }
 
-        /* Bloc de Stase : 128 Digits */
-        .status-box { font-size: 0.65rem; background: #001111; padding: 15px; border: 1px solid var(--neon); margin: 10px 0; line-height: 1.5; }
-        #res-phi { color: #fff; word-break: break-all; display: block; margin-top: 8px; font-weight: bold; border-top: 1px solid #022; padding-top: 8px; letter-spacing: 1px; font-size: 0.6rem; }
-        
-        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-        .label { color: #088; font-size: 0.55rem; text-transform: uppercase; }
-        .val { color: var(--neon); font-weight: bold; }
+        .status-box { font-size: 0.65rem; line-height: 1.4; }
+        #phi-brut { color: #fff; word-break: break-all; display: block; margin-top: 8px; font-weight: bold; border-top: 1px solid var(--bord); padding-top: 8px; letter-spacing: 1px; font-size: 0.7rem; }
 
-        /* Commandes de l'Institut */
-        .controls { display: grid; grid-template-columns: 3fr 1fr; gap: 10px; padding: 15px; background: #050505; border-top: 1px solid #111; }
-        button { background: var(--neon); color: #000; border: none; padding: 22px; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; cursor: pointer; }
-        button:disabled { background: #111; color: #333; }
-        .btn-reset { background: #111; color: var(--warn); border: 1px solid var(--warn); font-size: 0.55rem; padding: 5px; }
+        .grille { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .case { border-top: 1px solid #102020; padding-top: 5px; font-size: 0.6rem; }
+        .valeur { color: var(--trace); font-weight: bold; }
 
-        #stratification { flex: 1; min-height: 100px; font-size: 0.5rem; color: #044; padding: 10px; background: #020202; overflow-y: auto; border-top: 1px solid #111; }
-        .hidden { display: none !important; }
+        .barre { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; padding: 15px; background: #050505; border-top: 1px solid var(--bord); }
+        button { background: var(--trace); color: #000; border: none; padding: 22px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; font-size: 0.75rem; cursor: pointer; }
+        button:disabled { background: #022; color: #044; }
+        .danger { background: #100; color: var(--danger); border: 1px solid var(--danger); font-size: 0.5rem; }
+        #memoire { flex: 1; min-height: 100px; font-size: 0.5rem; color: #356; padding: 10px; background: #010101; overflow-y: auto; border-top: 1px solid var(--bord); }
+        .cache { display: none !important; }
     </style>
 </head>
 <body onclick="document.documentElement.requestFullscreen()">
 
     <div id="terminal">
-        <h1>VORTHÉNIX v5.5</h1>
-        
-        <div id="auth-zone">
-            <div id="status-line" style="font-size: 0.6rem; color: var(--gold); letter-spacing: 1px;">SOUVERAINETÉ : <span id="user-display">VERROUILLÉE</span></div>
-            <div id="auth-form">
-                <input type="text" id="username" placeholder="NOM D'USAGE (NEXUS)">
-                <input type="password" id="passkey" placeholder="INTENTION (MOT DE PASSE)">
-                <button onclick="validerIdentite()" style="padding:10px; font-size:0.6rem; width:100%; margin-top:5px;">ACTIVER LA MEMBRANE</button>
-            </div>
+        <header>
+            <h1>VORTHÉNIX v8.0</h1>
+            <div id="etat-ligne">STATUT : ATTENTE D'INCARNATION</div>
+        </header>
+
+        <div id="jonction" class="bloc" style="border-left: 4px solid var(--or);">
+            <input type="text" id="identite" placeholder="IDENTITÉ (NEXUS)">
+            <input type="password" id="graine" placeholder="GRAIN DE RÉSONANCE">
+            <button onclick="ouvrir()" style="width: 100%; padding: 12px; font-size: 0.65rem;">ACTIVER LA MEMBRANE (⧬)</button>
         </div>
 
         <canvas id="vorth-canvas"></canvas>
 
-        <div id="results" class="hidden status-box">
-            <span class="label">RÉSONANCE 𝚽 (128 DIGITS — UNAIRE) :</span>
-            <span id="res-phi">--</span>
+        <div id="sortie" class="hidden bloc status-box">
+            <span style="color: var(--texte-dim); font-size: 0.55rem;">Φ — ÉMANATION BRUTE (128 SIGNES) :</span>
+            <span id="phi-brut">--</span>
             
-            <div class="data-grid">
-                <div class="data-item"><span class="label">PENTE 𝓜Δ:</span> <span id="res-pente" class="val">--</span></div>
-                <div class="data-item"><span class="label">COHÉRENCE:</span> <span id="res-coh" class="val">--</span>%</div>
-                <div class="data-item"><span class="label">DISSIPATION C7:</span> <span id="res-diss" class="val">--</span> ns</div>
-                <div class="data-item"><span class="label">SIG-CHAIN:</span> <span id="res-sig" class="val" style="font-size:0.4rem">--</span></div>
+            <div class="grille">
+                <div class="case">COHÉRENCE: <span id="met-coh" class="valeur">--</span></div>
+                <div class="case">DISSIPATION: <span id="met-diss" class="valeur">--</span></div>
+                <div class="case">PENTE 𝓜Δ: <span id="met-pente" class="valeur">--</span></div>
+                <div class="case">IMPULSIONS: <span id="met-imp" class="valeur">--</span></div>
             </div>
         </div>
 
-        <div id="stratification"></div>
+        <div id="memoire"></div>
     </div>
 
-    <div class="controls">
-        <button id="run-btn" onclick="incarner()" disabled>SCELLER LE MAILLON (⧬)</button>
-        <button class="btn-reset" onclick="purgeTotal()">PURGE<br>𝓜Δ</button>
+    <div class="barre">
+        <button id="sceller-btn" onclick="sceller()" disabled>SCELLER LE MAILLON</button>
+        <button id="repro-btn" style="background:#071111; color:var(--trace); border:1px solid #153030; font-size:0.5rem;" disabled onclick="projeter()">REPROJETER</button>
+        <button class="danger" onclick="purge()">PURGE</button>
     </div>
 
     <script>
         const canvas = document.getElementById('vorth-canvas');
-        const ctx = canvas.getContext('2d');
-        let currentPass = "";
-        
-        let state = {
-            user: localStorage.getItem('vorth_user') || "",
-            lastPhi: localStorage.getItem('vorth_last_phi') || ""
-        };
+        const ctx = canvas.getContext('2d', { alpha: false });
+        let struct_mem = new BigUint64Array(128); 
+        let seed = 0n; let impulsions = 0n; let last_sum = 0n; let actif = false;
 
-        // Persistance de l'identité
-        if(state.user) {
-            document.getElementById('user-display').innerText = state.user;
-            document.getElementById('username').classList.add('hidden');
+        function rotationG64(v, s) { return ((v << (s & 63n)) | (v >> (64n - (s & 63n)))) & 0xFFFFFFFFFFFFFFFFn; }
+
+        function ouvrir() {
+            const id = document.getElementById('identite').value;
+            const key = document.getElementById('graine').value;
+            if(!id || !key) return;
+            seed = BigInt([...key].reduce((a, b) => a + b.charCodeAt(0), 0)) ^ 0x9E3779B97F4A7C15n;
+            actif = true;
+            document.getElementById('jonction').classList.add('cache');
+            document.getElementById('sortie').classList.remove('hidden');
+            document.getElementById('sceller-btn').disabled = false;
+            document.getElementById('repro-btn').disabled = false;
+            document.getElementById('etat-ligne').innerText = `JONCTION : ${id.toUpperCase()}`;
+            fond();
         }
 
-        function validerIdentite() {
-            const u = document.getElementById('username').value || state.user;
-            const p = document.getElementById('passkey').value;
-            if(!u || !p) return alert("INTENTION REQUISE");
-            
-            if(!state.user) localStorage.setItem('vorth_user', u);
-            currentPass = p;
-            state.user = u;
-            
-            document.getElementById('user-display').innerText = u;
-            document.getElementById('auth-form').classList.add('hidden');
-            document.getElementById('run-btn').disabled = false;
+        function fond() { ctx.fillStyle = "#000"; ctx.fillRect(0,0,canvas.width,canvas.height); }
+
+        function assimiler(x, y, canal) {
+            if(!actif) return;
+            const t = BigInt(Math.floor(performance.now() * 1000000));
+            const base = t ^ seed ^ (BigInt(x) << 17n) ^ (BigInt(y) << 29n) ^ BigInt(canal);
+            for(let i=0; i<128; i++) {
+                struct_mem[i] = rotationG64(struct_mem[i] ^ base ^ BigInt(i), BigInt((i*7+3)%64)) + (base & 0xFFn);
+            }
+            impulsions++;
+            projeter();
         }
 
-        function purgeTotal() {
-            if(confirm("ÉCRASEMENT DÉFINITIF DE LA GÉOLOGIE 𝓜Δ ?")) {
-                localStorage.clear();
-                location.reload();
+        function projeter() {
+            fond();
+            for(let i=0; i<128; i++) {
+                let v = Number(struct_mem[i] % BigInt(canvas.height / 2));
+                let x = (i * canvas.width / 128);
+                ctx.fillStyle = i % 2 === 0 ? "rgba(0, 255, 255, 0.5)" : "rgba(0, 76, 76, 0.4)";
+                ctx.fillRect(x, (canvas.height/2) + (i%2===0 ? v : -v), 2, 2);
+                ctx.strokeStyle = "rgba(0, 76, 76, 0.2)";
+                ctx.beginPath(); ctx.moveTo(x, canvas.height/2); ctx.lineTo(x, (canvas.height/2) + (i%2===0 ? v : -v)); ctx.stroke();
             }
         }
 
-        function incarner() {
-            const btn = document.getElementById('run-btn');
-            btn.disabled = true;
-            canvas.width = canvas.clientWidth;
-            canvas.height = canvas.clientHeight;
-
-            const t0 = BigInt(Math.floor(performance.now() * 1000000));
-            let mesures = [];
-            let actif = true;
-
-            function flux() {
-                if(actif) {
-                    const cycle = BigInt(Math.floor(performance.now() * 1000000));
-                    const dt = Number(cycle - t0) / 1000000;
-                    let x = (dt / 4500) * canvas.width;
-
-                    if(x < canvas.width) {
-                        for(let i = 0; i < 90; i++) {
-                            ctx.beginPath();
-                            ctx.lineWidth = 0.15;
-                            // Fréquence liée à l'intention (mot de passe)
-                            let resonance = Math.sin(dt * (0.005 + currentPass.length * 0.0001) + i);
-                            ctx.strokeStyle = `rgba(0, 255, 255, ${0.1 + (i/90) * 0.45})`;
-                            ctx.moveTo(x, canvas.height/2 + (canvas.height/4 * resonance));
-                            ctx.lineTo(x + 12, canvas.height/2 + (canvas.height/4 * resonance));
-                            ctx.stroke();
-                        }
-                        mesures.push(BigInt(Math.floor(performance.now() * 1000000)) - cycle);
-                        requestAnimationFrame(flux);
-                    } else {
-                        actif = false;
-                        finaliser(mesures, BigInt(Math.floor(performance.now() * 1000000)) - t0);
-                    }
-                }
+        function sceller() {
+            let phi = "0."; let current_sum = 0n;
+            let a = struct_mem[0]; let b = struct_mem[64];
+            for(let j=0; j<128; j++) {
+                let u = Number((a ^ rotationG64(b, BigInt(j))) & 7n);
+                phi += u.toString(); current_sum += BigInt(u);
+                a = rotationG64(a ^ b ^ seed, BigInt(j%64)); b = rotationG64(b ^ a, BigInt((j+17)%64));
             }
-            flux();
+            const coh = (Number(struct_mem[0] % 10000n) / 100).toFixed(6) + "%";
+            let pente = last_sum === 0n ? "GENÈSE" : (current_sum > last_sum ? "ÉLÉVATION ↑" : "DESCENTE ↓");
+            last_sum = current_sum;
+
+            document.getElementById('phi-brut').innerText = phi.match(/.{1,32}/g).join('\n');
+            document.getElementById('met-coh').innerText = coh;
+            document.getElementById('met-diss').innerText = (impulsions / 3n).toString() + "ns";
+            document.getElementById('met-pente').innerText = pente;
+            document.getElementById('met-imp').innerText = impulsions.toString();
+            
+            const log = document.getElementById('memoire');
+            log.innerHTML = `<div>[${pente}] Φ: ${phi.substring(0,14)}... | IMP: ${impulsions}</div>` + log.innerHTML;
         }
 
-        function finaliser(mesures, totalNS) {
-            const vorthNS = mesures.reduce((a, b) => a + b, 0n);
-            let phi = "0.";
-            let n = vorthNS; let d = totalNS;
-            
-            // ÉPUISEMENT UNAIRE (128 DIGITS) - Point 13 du Manifeste
-            for(let j = 0; j < 128; j++) {
-                n *= 10n; let u = 0n;
-                while(n >= d) { n -= d; u++; }
-                phi += u.toString();
-            }
+        function purge() { if(confirm("PURGER LA STASE ?")) location.reload(); }
 
-            const coh = (100 - (Number(totalNS - vorthNS) / Number(totalNS) * 100)).toFixed(10);
-            let evolution = state.lastPhi ? (Number(phi) > Number(state.lastPhi) ? "ÉLÉVATION ↑" : "DÉGRADATION ↓") : "GENÈSE";
-            
-            // Signature Incorruptible
-            const sig = btoa(phi + totalNS + state.user + currentPass).toUpperCase();
-            localStorage.setItem('vorth_last_phi', phi);
-            state.lastPhi = phi;
-
-            document.getElementById('results').classList.remove('hidden');
-            // Formatage scientifique par blocs de 4
-            document.getElementById('res-phi').innerText = phi.match(/.{1,4}/g).join(' ');
-            document.getElementById('res-pente').innerText = evolution;
-            document.getElementById('res-diss').innerText = (totalNS - vorthNS).toString();
-            document.getElementById('res-coh').innerText = coh;
-            document.getElementById('res-sig').innerText = sig.substring(0,32) + "...";
-            document.getElementById('run-btn').disabled = false;
-            
-            const log = document.getElementById('stratification');
-            log.innerHTML = `<div style="border-bottom:1px solid #111; padding:8px 0;">[${state.user}] SIG: ${sig.substring(0,8)} | Φ: ${phi.substring(0,10)}... | COH: ${coh}%</div>` + log.innerHTML;
-        }
+        canvas.addEventListener('pointermove', (e) => { if(e.buttons === 1) assimiler(e.offsetX, e.offsetY, 1); });
+        canvas.addEventListener('pointerdown', (e) => assimiler(e.offsetX, e.offsetY, 2));
+        window.addEventListener('keydown', (e) => assimiler(e.keyCode, e.keyCode, 3));
+        window.addEventListener('resize', () => { canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight; projeter(); });
+        canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight;
     </script>
 </body>
 </html>
