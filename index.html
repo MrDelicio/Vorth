@@ -3,42 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Vorthénix v5.3 - Espace Confiant</title>
+    <title>VORTHÉNIX v5.5 - Souveraineté Canonique</title>
     <style>
-        :root { --neon: #0ff; --bg: #000; }
-        /* Occupation totale de l'écran (No-Scroll lors du scan) */
+        :root { --neon: #0ff; --bg: #000; --gold: #ffd700; --warn: #f00; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        #terminal { flex: 1; display: flex; flex-direction: column; padding: 15px; box-sizing: border-box; }
-        h1 { font-size: 0.9rem; text-align: center; letter-spacing: 5px; margin: 10px 0; color: #fff; }
+        #terminal { flex: 1; display: flex; flex-direction: column; padding: 15px; overflow-y: auto; }
+        h1 { font-size: 1rem; text-align: center; letter-spacing: 6px; margin: 5px 0; color: #fff; text-shadow: 0 0 15px var(--neon); }
 
-        #vorth-canvas { width: 100%; flex: 1; background: #000; border: 1px solid #011; touch-action: none; }
-
-        .status-box { font-size: 0.6rem; background: rgba(0,15,25,0.95); padding: 15px; border: 1px solid var(--neon); margin-bottom: 10px; }
+        /* Auth Zone : Souveraineté de l'Intention */
+        #auth-zone { background: rgba(0,20,30,0.95); border: 1px solid var(--neon); padding: 15px; margin-bottom: 10px; border-left: 5px solid var(--gold); }
+        input { background: #000; border: 1px solid #033; color: var(--neon); padding: 12px; width: 100%; margin-bottom: 5px; outline: none; font-size: 0.8rem; border-radius: 0; }
         
-        /* Boutons massifs pour usage tactile expert */
-        .controls { display: grid; grid-template-columns: 3fr 1fr; gap: 10px; padding: 10px; background: #050505; }
-        button { background: var(--neon); color: #000; border: none; padding: 25px; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; }
-        .btn-opt { background: #111; color: #555; font-size: 0.5rem; border: 1px solid #222; }
+        #vorth-canvas { width: 100%; height: 260px; background: #000; border: 1px solid #011; touch-action: none; flex-shrink: 0; }
 
-        #stratification { height: 100px; overflow-y: scroll; font-size: 0.5rem; color: #044; padding: 5px; background: #020202; }
+        /* Bloc de Stase : 128 Digits */
+        .status-box { font-size: 0.65rem; background: #001111; padding: 15px; border: 1px solid var(--neon); margin: 10px 0; line-height: 1.5; }
+        #res-phi { color: #fff; word-break: break-all; display: block; margin-top: 8px; font-weight: bold; border-top: 1px solid #022; padding-top: 8px; letter-spacing: 1px; font-size: 0.6rem; }
+        
+        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .label { color: #088; font-size: 0.55rem; text-transform: uppercase; }
+        .val { color: var(--neon); font-weight: bold; }
+
+        /* Commandes de l'Institut */
+        .controls { display: grid; grid-template-columns: 3fr 1fr; gap: 10px; padding: 15px; background: #050505; border-top: 1px solid #111; }
+        button { background: var(--neon); color: #000; border: none; padding: 22px; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; cursor: pointer; }
+        button:disabled { background: #111; color: #333; }
+        .btn-reset { background: #111; color: var(--warn); border: 1px solid var(--warn); font-size: 0.55rem; padding: 5px; }
+
+        #stratification { flex: 1; min-height: 100px; font-size: 0.5rem; color: #044; padding: 10px; background: #020202; overflow-y: auto; border-top: 1px solid #111; }
+        .hidden { display: none !important; }
     </style>
 </head>
-<body onclick="requestFullScreen()">
+<body onclick="document.documentElement.requestFullscreen()">
 
     <div id="terminal">
-        <h1>VORTHÉNIX v5.3 (⧬)</h1>
+        <h1>VORTHÉNIX v5.5</h1>
         
-        <div id="auth-status" style="font-size: 0.5rem; color: #ffd700; margin-bottom: 5px;">
-            STASE : <span id="user-display">NEXUS</span> | VORTHCHAIN ACTIVE
+        <div id="auth-zone">
+            <div id="status-line" style="font-size: 0.6rem; color: var(--gold); letter-spacing: 1px;">SOUVERAINETÉ : <span id="user-display">VERROUILLÉE</span></div>
+            <div id="auth-form">
+                <input type="text" id="username" placeholder="NOM D'USAGE (NEXUS)">
+                <input type="password" id="passkey" placeholder="INTENTION (MOT DE PASSE)">
+                <button onclick="validerIdentite()" style="padding:10px; font-size:0.6rem; width:100%; margin-top:5px;">ACTIVER LA MEMBRANE</button>
+            </div>
         </div>
 
         <canvas id="vorth-canvas"></canvas>
 
-        <div id="results" class="status-box">
-            <div id="res-data" style="font-size: 0.55rem; line-height: 1.4;">
-                Φ: <span id="res-phi" style="color:#fff">--</span><br>
-                COHÉRENCE: <span id="res-coh">--</span> % | PENTE: <span id="res-pente">--</span>
+        <div id="results" class="hidden status-box">
+            <span class="label">RÉSONANCE 𝚽 (128 DIGITS — UNAIRE) :</span>
+            <span id="res-phi">--</span>
+            
+            <div class="data-grid">
+                <div class="data-item"><span class="label">PENTE 𝓜Δ:</span> <span id="res-pente" class="val">--</span></div>
+                <div class="data-item"><span class="label">COHÉRENCE:</span> <span id="res-coh" class="val">--</span>%</div>
+                <div class="data-item"><span class="label">DISSIPATION C7:</span> <span id="res-diss" class="val">--</span> ns</div>
+                <div class="data-item"><span class="label">SIG-CHAIN:</span> <span id="res-sig" class="val" style="font-size:0.4rem">--</span></div>
             </div>
         </div>
 
@@ -46,26 +69,50 @@
     </div>
 
     <div class="controls">
-        <button id="run-btn" onclick="incarner()">SCELLER LA JONCTION</button>
-        <button class="btn-opt" onclick="toggleInterface()">MODE<br>PURE</button>
+        <button id="run-btn" onclick="incarner()" disabled>SCELLER LE MAILLON (⧬)</button>
+        <button class="btn-reset" onclick="purgeTotal()">PURGE<br>𝓜Δ</button>
     </div>
 
     <script>
         const canvas = document.getElementById('vorth-canvas');
         const ctx = canvas.getContext('2d');
-        let mem = JSON.parse(localStorage.getItem('vorth_v53')) || null;
+        let currentPass = "";
+        
+        let state = {
+            user: localStorage.getItem('vorth_user') || "",
+            lastPhi: localStorage.getItem('vorth_last_phi') || ""
+        };
 
-        // Force le plein écran pour ignorer la barre d'Android
-        function requestFullScreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(e => {});
+        // Persistance de l'identité
+        if(state.user) {
+            document.getElementById('user-display').innerText = state.user;
+            document.getElementById('username').classList.add('hidden');
+        }
+
+        function validerIdentite() {
+            const u = document.getElementById('username').value || state.user;
+            const p = document.getElementById('passkey').value;
+            if(!u || !p) return alert("INTENTION REQUISE");
+            
+            if(!state.user) localStorage.setItem('vorth_user', u);
+            currentPass = p;
+            state.user = u;
+            
+            document.getElementById('user-display').innerText = u;
+            document.getElementById('auth-form').classList.add('hidden');
+            document.getElementById('run-btn').disabled = false;
+        }
+
+        function purgeTotal() {
+            if(confirm("ÉCRASEMENT DÉFINITIF DE LA GÉOLOGIE 𝓜Δ ?")) {
+                localStorage.clear();
+                location.reload();
             }
         }
 
         function incarner() {
             const btn = document.getElementById('run-btn');
             btn.disabled = true;
-            // Adaptation auto du canvas à l'écran réel du Samsung
             canvas.width = canvas.clientWidth;
             canvas.height = canvas.clientHeight;
 
@@ -77,16 +124,17 @@
                 if(actif) {
                     const cycle = BigInt(Math.floor(performance.now() * 1000000));
                     const dt = Number(cycle - t0) / 1000000;
-                    let x = (dt / 4000) * canvas.width;
+                    let x = (dt / 4500) * canvas.width;
 
                     if(x < canvas.width) {
-                        for(let i = 0; i < 80; i++) {
+                        for(let i = 0; i < 90; i++) {
                             ctx.beginPath();
-                            ctx.lineWidth = 0.2;
-                            let vibe = (canvas.height/4) * Math.sin(dt * 0.006 + i);
-                            ctx.strokeStyle = `rgba(0, 255, 255, ${0.1 + (i/80) * 0.4})`;
-                            ctx.moveTo(x, canvas.height/2 + vibe);
-                            ctx.lineTo(x + 10, canvas.height/2 + vibe);
+                            ctx.lineWidth = 0.15;
+                            // Fréquence liée à l'intention (mot de passe)
+                            let resonance = Math.sin(dt * (0.005 + currentPass.length * 0.0001) + i);
+                            ctx.strokeStyle = `rgba(0, 255, 255, ${0.1 + (i/90) * 0.45})`;
+                            ctx.moveTo(x, canvas.height/2 + (canvas.height/4 * resonance));
+                            ctx.lineTo(x + 12, canvas.height/2 + (canvas.height/4 * resonance));
                             ctx.stroke();
                         }
                         mesures.push(BigInt(Math.floor(performance.now() * 1000000)) - cycle);
@@ -104,30 +152,33 @@
             const vorthNS = mesures.reduce((a, b) => a + b, 0n);
             let phi = "0.";
             let n = vorthNS; let d = totalNS;
-            for(let j = 0; j < 80; j++) {
+            
+            // ÉPUISEMENT UNAIRE (128 DIGITS) - Point 13 du Manifeste
+            for(let j = 0; j < 128; j++) {
                 n *= 10n; let u = 0n;
                 while(n >= d) { n -= d; u++; }
                 phi += u.toString();
             }
 
-            const coh = (100 - (Number(totalNS - vorthNS) / Number(totalNS) * 100)).toFixed(8);
-            let evo = mem ? (Number(phi) > Number(mem.phi) ? "↑" : "↓") : "GEN";
+            const coh = (100 - (Number(totalNS - vorthNS) / Number(totalNS) * 100)).toFixed(10);
+            let evolution = state.lastPhi ? (Number(phi) > Number(state.lastPhi) ? "ÉLÉVATION ↑" : "DÉGRADATION ↓") : "GENÈSE";
+            
+            // Signature Incorruptible
+            const sig = btoa(phi + totalNS + state.user + currentPass).toUpperCase();
+            localStorage.setItem('vorth_last_phi', phi);
+            state.lastPhi = phi;
 
-            localStorage.setItem('vorth_v53', JSON.stringify({phi, coh}));
-            mem = {phi, coh};
-
-            document.getElementById('res-phi').innerText = phi.substring(0,40) + "...";
+            document.getElementById('results').classList.remove('hidden');
+            // Formatage scientifique par blocs de 4
+            document.getElementById('res-phi').innerText = phi.match(/.{1,4}/g).join(' ');
+            document.getElementById('res-pente').innerText = evolution;
+            document.getElementById('res-diss').innerText = (totalNS - vorthNS).toString();
             document.getElementById('res-coh').innerText = coh;
-            document.getElementById('res-pente').innerText = evo;
+            document.getElementById('res-sig').innerText = sig.substring(0,32) + "...";
             document.getElementById('run-btn').disabled = false;
-
+            
             const log = document.getElementById('stratification');
-            log.innerHTML = `<div>> Φ: ${phi.substring(0,12)} | ${coh}%</div>` + log.innerHTML;
-        }
-
-        function toggleInterface() {
-            const results = document.getElementById('results');
-            results.classList.toggle('hidden');
+            log.innerHTML = `<div style="border-bottom:1px solid #111; padding:8px 0;">[${state.user}] SIG: ${sig.substring(0,8)} | Φ: ${phi.substring(0,10)}... | COH: ${coh}%</div>` + log.innerHTML;
         }
     </script>
 </body>
