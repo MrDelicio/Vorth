@@ -3,156 +3,1039 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>VORTHÉNIX v8.0 — Jonction Vivante</title>
+    <title>VORTHÉNIX v9.1 — Persistance Vivante</title>
     <style>
         :root {
-            --fond: #000000; --bloc: #050909; --trace: #00ffff;
-            --trace-dim: #0a4c4c; --or: #ffd700; --danger: #ff4d4d;
-            --bord: #112222; --texte: #d9ffff; --texte-dim: #5aa;
+            --fond: #000000;
+            --bloc: #050909;
+            --trace: #00ffff;
+            --trace-dim: #0a4c4c;
+            --or: #ffd700;
+            --danger: #ff4d4d;
+            --bord: #112222;
+            --texte: #d9ffff;
+            --texte-dim: #5aa;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--fond); color: var(--texte); font-family: "Courier New", monospace; overflow: hidden; }
-        body { display: flex; flex-direction: column; }
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-        #terminal { flex: 1; display: flex; flex-direction: column; padding: 10px; gap: 10px; overflow-y: auto; }
-        header { border: 1px solid var(--bord); background: #020505; padding: 12px; text-align: center; border-left: 4px solid var(--or); }
-        h1 { margin: 0 0 4px 0; font-size: 0.9rem; letter-spacing: 6px; color: #fff; text-shadow: 0 0 10px var(--trace); }
-        #etat-ligne { font-size: 0.55rem; color: var(--or); letter-spacing: 2px; }
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--fond);
+            color: var(--texte);
+            font-family: "Courier New", monospace;
+            overflow: hidden;
+        }
 
-        .bloc { background: var(--bloc); border: 1px solid var(--bord); padding: 12px; }
-        input { background: #000; border: 1px solid #1a2a2a; color: var(--trace); padding: 12px; width: 100%; margin-bottom: 8px; outline: none; font-size: 0.85rem; }
-        
-        #vorth-canvas { width: 100%; height: 300px; background: #000; border: 1px solid #111; touch-action: none; flex-shrink: 0; image-rendering: pixelated; cursor: crosshair; }
+        body {
+            display: flex;
+            flex-direction: column;
+        }
 
-        .status-box { font-size: 0.65rem; line-height: 1.4; }
-        #phi-brut { color: #fff; word-break: break-all; display: block; margin-top: 8px; font-weight: bold; border-top: 1px solid var(--bord); padding-top: 8px; letter-spacing: 1px; font-size: 0.7rem; }
+        #terminal {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            padding: 10px;
+            gap: 10px;
+            overflow-y: auto;
+        }
 
-        .grille { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .case { border-top: 1px solid #102020; padding-top: 5px; font-size: 0.6rem; }
-        .valeur { color: var(--trace); font-weight: bold; }
+        header {
+            border: 1px solid var(--bord);
+            border-left: 4px solid var(--or);
+            background: #020505;
+            padding: 12px;
+            text-align: center;
+        }
 
-        .barre { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; padding: 15px; background: #050505; border-top: 1px solid var(--bord); }
-        button { background: var(--trace); color: #000; border: none; padding: 22px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; font-size: 0.75rem; cursor: pointer; }
-        button:disabled { background: #022; color: #044; }
-        .danger { background: #100; color: var(--danger); border: 1px solid var(--danger); font-size: 0.5rem; }
-        #memoire { flex: 1; min-height: 100px; font-size: 0.5rem; color: #356; padding: 10px; background: #010101; overflow-y: auto; border-top: 1px solid var(--bord); }
-        .cache { display: none !important; }
+        h1 {
+            margin: 0 0 4px 0;
+            font-size: 0.95rem;
+            letter-spacing: 6px;
+            color: #fff;
+            text-shadow: 0 0 10px var(--trace);
+        }
+
+        #etat-ligne {
+            font-size: 0.58rem;
+            color: var(--or);
+            letter-spacing: 2px;
+        }
+
+        .bloc {
+            background: var(--bloc);
+            border: 1px solid var(--bord);
+            padding: 12px;
+        }
+
+        #gate-zone {
+            border-left: 4px solid var(--or);
+        }
+
+        input {
+            width: 100%;
+            background: #000;
+            color: var(--trace);
+            border: 1px solid #1a2a2a;
+            padding: 12px;
+            margin-bottom: 8px;
+            outline: none;
+            font-size: 0.82rem;
+        }
+
+        button {
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-family: inherit;
+            letter-spacing: 1px;
+        }
+
+        .action {
+            background: var(--trace);
+            color: #000;
+            padding: 14px;
+        }
+
+        .action:disabled {
+            background: #022;
+            color: #044;
+            cursor: default;
+        }
+
+        .secondaire {
+            background: #071111;
+            color: var(--trace);
+            border: 1px solid #153030;
+            padding: 14px;
+        }
+
+        .danger {
+            background: #100;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 14px;
+        }
+
+        #vorth-canvas {
+            width: 100%;
+            height: 320px;
+            background: #000;
+            border: 1px solid #111;
+            touch-action: none;
+            flex-shrink: 0;
+            cursor: crosshair;
+            display: block;
+        }
+
+        .status-box {
+            font-size: 0.65rem;
+            line-height: 1.4;
+        }
+
+        .label {
+            color: var(--texte-dim);
+            font-size: 0.52rem;
+            text-transform: uppercase;
+        }
+
+        #phi-raw {
+            color: #fff;
+            word-break: break-all;
+            display: block;
+            margin-top: 8px;
+            font-weight: bold;
+            border-top: 1px solid var(--bord);
+            padding-top: 8px;
+            letter-spacing: 1px;
+            white-space: pre-wrap;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .metric-item {
+            border-top: 1px solid #102020;
+            padding-top: 5px;
+            font-size: 0.60rem;
+        }
+
+        .val {
+            color: var(--trace);
+            font-weight: bold;
+            word-break: break-all;
+        }
+
+        #stratification {
+            flex: 1;
+            min-height: 100px;
+            font-size: 0.50rem;
+            color: #4c8080;
+            padding: 10px;
+            background: #010101;
+            overflow-y: auto;
+            border-top: 1px solid var(--bord);
+            line-height: 1.45;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+            gap: 10px;
+            padding: 12px;
+            background: #050505;
+            border-top: 1px solid var(--bord);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #etat-fichier {
+            font-size: 0.52rem;
+            color: var(--texte-dim);
+            margin-top: 8px;
+            border-top: 1px solid var(--bord);
+            padding-top: 8px;
+        }
     </style>
 </head>
-<body onclick="document.documentElement.requestFullscreen()">
-
+<body>
     <div id="terminal">
         <header>
-            <h1>VORTHÉNIX v8.0</h1>
-            <div id="etat-ligne">STATUT : ATTENTE D'INCARNATION</div>
+            <h1>VORTHÉNIX v9.1</h1>
+            <div id="etat-ligne">STATUT : ATTENTE DE JONCTION</div>
         </header>
 
-        <div id="jonction" class="bloc" style="border-left: 4px solid var(--or);">
-            <input type="text" id="identite" placeholder="IDENTITÉ (NEXUS)">
-            <input type="password" id="graine" placeholder="GRAIN DE RÉSONANCE">
-            <button onclick="ouvrir()" style="width: 100%; padding: 12px; font-size: 0.65rem;">ACTIVER LA MEMBRANE (⧬)</button>
+        <div id="gate-zone" class="bloc">
+            <input type="text" id="nexus-id" placeholder="IDENTITÉ (NEXUS)">
+            <input type="password" id="stase-key" placeholder="GRAINE DE RÉSONANCE">
+            <button id="ouvrir-btn" class="action" style="width:100%;">ACTIVER LA MEMBRANE (⧬)</button>
+            <div id="etat-fichier">AUCUN ÉTAT CHARGÉ</div>
         </div>
 
         <canvas id="vorth-canvas"></canvas>
 
-        <div id="sortie" class="hidden bloc status-box">
-            <span style="color: var(--texte-dim); font-size: 0.55rem;">Φ — ÉMANATION BRUTE (128 SIGNES) :</span>
-            <span id="phi-brut">--</span>
-            
-            <div class="grille">
-                <div class="case">COHÉRENCE: <span id="met-coh" class="valeur">--</span></div>
-                <div class="case">DISSIPATION: <span id="met-diss" class="valeur">--</span></div>
-                <div class="case">PENTE 𝓜Δ: <span id="met-pente" class="valeur">--</span></div>
-                <div class="case">IMPULSIONS: <span id="met-imp" class="valeur">--</span></div>
+        <div id="core-display" class="hidden bloc status-box">
+            <span class="label">Φ — ÉMANATION BRUTE (128 SIGNES OCTAUX)</span>
+            <span id="phi-raw">--</span>
+
+            <div class="metrics">
+                <div class="metric-item"><span class="label">ACCORDS LOCAUX :</span> <span id="met-accords" class="val">--</span></div>
+                <div class="metric-item"><span class="label">DISPERSION ACTIVE :</span> <span id="met-dispersion" class="val">--</span></div>
+                <div class="metric-item"><span class="label">SILENCE :</span> <span id="met-silence" class="val">--</span></div>
+                <div class="metric-item"><span class="label">IMPULSIONS :</span> <span id="met-imp" class="val">--</span></div>
+                <div class="metric-item"><span class="label">PENTE 𝓜Δ :</span> <span id="met-pente" class="val">--</span></div>
+                <div class="metric-item"><span class="label">ÉCART DE RAILS :</span> <span id="met-ecart" class="val">--</span></div>
+                <div class="metric-item"><span class="label">RAIL A :</span> <span id="met-ra" class="val">--</span></div>
+                <div class="metric-item"><span class="label">RAIL B :</span> <span id="met-rb" class="val">--</span></div>
+                <div class="metric-item"><span class="label">SIG LOCAL :</span> <span id="met-sig" class="val">--</span></div>
+                <div class="metric-item"><span class="label">GRAINE :</span> <span id="met-seed" class="val">--</span></div>
             </div>
         </div>
 
-        <div id="memoire"></div>
+        <div id="stratification"></div>
     </div>
 
-    <div class="barre">
-        <button id="sceller-btn" onclick="sceller()" disabled>SCELLER LE MAILLON</button>
-        <button id="repro-btn" style="background:#071111; color:var(--trace); border:1px solid #153030; font-size:0.5rem;" disabled onclick="projeter()">REPROJETER</button>
-        <button class="danger" onclick="purge()">PURGE</button>
+    <div class="controls">
+        <button id="run-btn" class="action" disabled>SCELLER</button>
+        <button id="prop-btn" class="secondaire" disabled>PROPAGER</button>
+        <button id="repro-btn" class="secondaire" disabled>REPROJETER</button>
+        <button id="save-btn" class="secondaire" disabled>SAUVER</button>
+        <button id="export-btn" class="secondaire" disabled>EXPORTER</button>
+        <button id="import-btn" class="secondaire">IMPORTER</button>
     </div>
+
+    <input id="import-file" type="file" accept="application/json" class="hidden">
 
     <script>
-        const canvas = document.getElementById('vorth-canvas');
-        const ctx = canvas.getContext('2d', { alpha: false });
-        let struct_mem = new BigUint64Array(128); 
-        let seed = 0n; let impulsions = 0n; let last_sum = 0n; let actif = false;
+        (() => {
+            "use strict";
 
-        function rotationG64(v, s) { return ((v << (s & 63n)) | (v >> (64n - (s & 63n)))) & 0xFFFFFFFFFFFFFFFFn; }
+            const MASQUE_64 = (1n << 64n) - 1n;
+            const TAILLE = 128;
+            const ALPHABET = "01234567";
+            const CLE_PERSISTANCE = "vorthenix_v91_etat_local";
+            const LIMITE_JOURNAL = 240;
 
-        function ouvrir() {
-            const id = document.getElementById('identite').value;
-            const key = document.getElementById('graine').value;
-            if(!id || !key) return;
-            seed = BigInt([...key].reduce((a, b) => a + b.charCodeAt(0), 0)) ^ 0x9E3779B97F4A7C15n;
-            actif = true;
-            document.getElementById('jonction').classList.add('cache');
-            document.getElementById('sortie').classList.remove('hidden');
-            document.getElementById('sceller-btn').disabled = false;
-            document.getElementById('repro-btn').disabled = false;
-            document.getElementById('etat-ligne').innerText = `JONCTION : ${id.toUpperCase()}`;
-            fond();
-        }
+            const vue = {
+                canvas: document.getElementById("vorth-canvas"),
+                ctx: document.getElementById("vorth-canvas").getContext("2d", { alpha: false }),
 
-        function fond() { ctx.fillStyle = "#000"; ctx.fillRect(0,0,canvas.width,canvas.height); }
+                gateZone: document.getElementById("gate-zone"),
+                nexusId: document.getElementById("nexus-id"),
+                staseKey: document.getElementById("stase-key"),
+                etatFichier: document.getElementById("etat-fichier"),
 
-        function assimiler(x, y, canal) {
-            if(!actif) return;
-            const t = BigInt(Math.floor(performance.now() * 1000000));
-            const base = t ^ seed ^ (BigInt(x) << 17n) ^ (BigInt(y) << 29n) ^ BigInt(canal);
-            for(let i=0; i<128; i++) {
-                struct_mem[i] = rotationG64(struct_mem[i] ^ base ^ BigInt(i), BigInt((i*7+3)%64)) + (base & 0xFFn);
+                ouvrirBtn: document.getElementById("ouvrir-btn"),
+                runBtn: document.getElementById("run-btn"),
+                propBtn: document.getElementById("prop-btn"),
+                reproBtn: document.getElementById("repro-btn"),
+                saveBtn: document.getElementById("save-btn"),
+                exportBtn: document.getElementById("export-btn"),
+                importBtn: document.getElementById("import-btn"),
+                importFile: document.getElementById("import-file"),
+
+                etatLigne: document.getElementById("etat-ligne"),
+                coreDisplay: document.getElementById("core-display"),
+                stratification: document.getElementById("stratification"),
+
+                phiRaw: document.getElementById("phi-raw"),
+                metAccords: document.getElementById("met-accords"),
+                metDispersion: document.getElementById("met-dispersion"),
+                metSilence: document.getElementById("met-silence"),
+                metImp: document.getElementById("met-imp"),
+                metPente: document.getElementById("met-pente"),
+                metEcart: document.getElementById("met-ecart"),
+                metRa: document.getElementById("met-ra"),
+                metRb: document.getElementById("met-rb"),
+                metSig: document.getElementById("met-sig"),
+                metSeed: document.getElementById("met-seed")
+            };
+
+            function creerMemoire() {
+                const sortie = [];
+                for (let i = 0; i < TAILLE; i += 1) sortie.push(0n);
+                return sortie;
             }
-            impulsions++;
-            projeter();
-        }
 
-        function projeter() {
-            fond();
-            for(let i=0; i<128; i++) {
-                let v = Number(struct_mem[i] % BigInt(canvas.height / 2));
-                let x = (i * canvas.width / 128);
-                ctx.fillStyle = i % 2 === 0 ? "rgba(0, 255, 255, 0.5)" : "rgba(0, 76, 76, 0.4)";
-                ctx.fillRect(x, (canvas.height/2) + (i%2===0 ? v : -v), 2, 2);
-                ctx.strokeStyle = "rgba(0, 76, 76, 0.2)";
-                ctx.beginPath(); ctx.moveTo(x, canvas.height/2); ctx.lineTo(x, (canvas.height/2) + (i%2===0 ? v : -v)); ctx.stroke();
+            function creerEtat() {
+                return {
+                    version: "9.1",
+                    ouvert: false,
+                    identite: "",
+                    graineA: 0n,
+                    graineB: 0n,
+                    memoireA: creerMemoire(),
+                    memoireB: creerMemoire(),
+                    impulsions: 0n,
+                    silence: 0n,
+                    derniereSomme: 0n,
+                    dernierPhi: "",
+                    dernierPointX: 0,
+                    dernierPointY: 0,
+                    journal: [],
+                    dernierNomEtat: ""
+                };
             }
-        }
 
-        function sceller() {
-            let phi = "0."; let current_sum = 0n;
-            let a = struct_mem[0]; let b = struct_mem[64];
-            for(let j=0; j<128; j++) {
-                let u = Number((a ^ rotationG64(b, BigInt(j))) & 7n);
-                phi += u.toString(); current_sum += BigInt(u);
-                a = rotationG64(a ^ b ^ seed, BigInt(j%64)); b = rotationG64(b ^ a, BigInt((j+17)%64));
+            let etat = creerEtat();
+
+            function rotationG64(v, s) {
+                const n = BigInt(Number(s & 63n));
+                if (n === 0n) return v & MASQUE_64;
+                return ((v << n) | (v >> (64n - n))) & MASQUE_64;
             }
-            const coh = (Number(struct_mem[0] % 10000n) / 100).toFixed(6) + "%";
-            let pente = last_sum === 0n ? "GENÈSE" : (current_sum > last_sum ? "ÉLÉVATION ↑" : "DESCENTE ↓");
-            last_sum = current_sum;
 
-            document.getElementById('phi-brut').innerText = phi.match(/.{1,32}/g).join('\n');
-            document.getElementById('met-coh').innerText = coh;
-            document.getElementById('met-diss').innerText = (impulsions / 3n).toString() + "ns";
-            document.getElementById('met-pente').innerText = pente;
-            document.getElementById('met-imp').innerText = impulsions.toString();
-            
-            const log = document.getElementById('memoire');
-            log.innerHTML = `<div>[${pente}] Φ: ${phi.substring(0,14)}... | IMP: ${impulsions}</div>` + log.innerHTML;
-        }
+            function rotationD64(v, s) {
+                const n = BigInt(Number(s & 63n));
+                if (n === 0n) return v & MASQUE_64;
+                return ((v >> n) | (v << (64n - n))) & MASQUE_64;
+            }
 
-        function purge() { if(confirm("PURGER LA STASE ?")) location.reload(); }
+            function hex16(v) {
+                return (v & MASQUE_64).toString(16).padStart(16, "0").toUpperCase();
+            }
 
-        canvas.addEventListener('pointermove', (e) => { if(e.buttons === 1) assimiler(e.offsetX, e.offsetY, 1); });
-        canvas.addEventListener('pointerdown', (e) => assimiler(e.offsetX, e.offsetY, 2));
-        window.addEventListener('keydown', (e) => assimiler(e.keyCode, e.keyCode, 3));
-        window.addEventListener('resize', () => { canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight; projeter(); });
-        canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight;
+            function blocsTexte(texte, taille) {
+                const lignes = [];
+                for (let i = 0; i < texte.length; i += taille) lignes.push(texte.slice(i, i + taille));
+                return lignes.join("\n");
+            }
+
+            function normaliserTexte(t) {
+                return (t || "").trim();
+            }
+
+            function ajouterJournal(message) {
+                etat.journal.unshift(message);
+                if (etat.journal.length > LIMITE_JOURNAL) {
+                    etat.journal.length = LIMITE_JOURNAL;
+                }
+                rendreJournal();
+            }
+
+            function rendreJournal() {
+                vue.stratification.innerHTML = "";
+                for (const ligne of etat.journal) {
+                    const div = document.createElement("div");
+                    div.textContent = ligne;
+                    vue.stratification.appendChild(div);
+                }
+            }
+
+            function dimensionnerCanvas() {
+                const w = Math.max(320, vue.canvas.clientWidth | 0);
+                const h = Math.max(220, vue.canvas.clientHeight | 0);
+                if (vue.canvas.width !== w || vue.canvas.height !== h) {
+                    vue.canvas.width = w;
+                    vue.canvas.height = h;
+                }
+            }
+
+            function effacerCanvas() {
+                vue.ctx.fillStyle = "#000000";
+                vue.ctx.fillRect(0, 0, vue.canvas.width, vue.canvas.height);
+            }
+
+            function melangerTexte(texte) {
+                let a = 0x6a09e667f3bcc909n;
+                let b = 0xbb67ae8584caa73bn;
+                const chars = Array.from(texte);
+
+                for (let i = 0; i < chars.length; i += 1) {
+                    const cp = BigInt(chars[i].codePointAt(0) || 0);
+                    const rang = BigInt(i + 1);
+
+                    a ^= (cp << (rang % 17n)) & MASQUE_64;
+                    a = rotationG64((a + 0x9e3779b97f4a7c15n + rang + cp) & MASQUE_64, (rang * 7n) & 63n);
+
+                    b ^= rotationG64(cp ^ a ^ rang, (rang * 11n) & 63n);
+                    b = rotationD64((b + 0x517cc1b727220a95n + (cp << 1n)) & MASQUE_64, (rang * 5n) & 63n);
+                }
+
+                a ^= BigInt(chars.length);
+                b ^= BigInt(chars.length) << 3n;
+                a = rotationG64(a ^ b, 13n);
+                b = rotationD64(b ^ a, 17n);
+
+                return { a: a & MASQUE_64, b: b & MASQUE_64 };
+            }
+
+            function calculerCentreLocal(index, centre, rayon) {
+                const d = Math.abs(index - centre);
+                if (d === 0) return rayon + 1;
+                if (d > rayon) return 0;
+                return rayon + 1 - d;
+            }
+
+            function assimilerEntree(etatActuel, entree) {
+                if (!etatActuel.ouvert) return etatActuel;
+
+                const largeur = BigInt(Math.max(1, vue.canvas.width));
+                const x = BigInt(Math.max(0, Math.min(vue.canvas.width - 1, entree.x | 0)));
+                const y = BigInt(Math.max(0, Math.min(vue.canvas.height - 1, entree.y | 0)));
+                const canal = BigInt(entree.canal);
+                const code = BigInt(entree.code);
+                const centre = Number((x * BigInt(TAILLE)) / largeur);
+                const rayon = 9;
+
+                const pivot =
+                    (x << 7n) ^
+                    (y << 19n) ^
+                    (canal << 3n) ^
+                    (code << 11n) ^
+                    (etatActuel.impulsions << 1n) ^
+                    etatActuel.graineA ^
+                    rotationG64(etatActuel.graineB, etatActuel.impulsions & 63n);
+
+                for (let i = 0; i < TAILLE; i += 1) {
+                    const poids = calculerCentreLocal(i, centre, rayon);
+                    if (poids === 0) continue;
+
+                    const idx = BigInt(i);
+                    const poidsB = BigInt(poids);
+
+                    const precedentA = etatActuel.memoireA[i] & MASQUE_64;
+                    const precedentB = etatActuel.memoireB[i] & MASQUE_64;
+
+                    const voisinAG = etatActuel.memoireA[(i + TAILLE - 1) % TAILLE] & MASQUE_64;
+                    const voisinAD = etatActuel.memoireA[(i + 1) % TAILLE] & MASQUE_64;
+                    const voisinBG = etatActuel.memoireB[(i + TAILLE - 1) % TAILLE] & MASQUE_64;
+                    const voisinBD = etatActuel.memoireB[(i + 1) % TAILLE] & MASQUE_64;
+
+                    const deltaA =
+                        pivot ^
+                        rotationG64(voisinAG ^ idx ^ etatActuel.graineA, (idx * 3n + poidsB) & 63n) ^
+                        rotationD64(voisinAD ^ code ^ etatActuel.graineB, (idx * 5n + 1n) & 63n) ^
+                        ((x * (idx + 1n) * poidsB) & MASQUE_64);
+
+                    const deltaB =
+                        (pivot ^ rotationG64(etatActuel.graineB, poidsB & 63n)) ^
+                        rotationD64(voisinBG ^ idx ^ etatActuel.graineB, (idx * 7n + poidsB) & 63n) ^
+                        rotationG64(voisinBD ^ code ^ etatActuel.graineA, (idx * 11n + 3n) & 63n) ^
+                        ((y * (idx + 3n) * poidsB) & MASQUE_64);
+
+                    etatActuel.memoireA[i] = (precedentA ^ deltaA ^ poidsB ^ canal) & MASQUE_64;
+                    etatActuel.memoireB[i] = (precedentB ^ deltaB ^ poidsB ^ (canal << 1n)) & MASQUE_64;
+                }
+
+                etatActuel.impulsions += 1n;
+                etatActuel.silence = 0n;
+                etatActuel.dernierPointX = Number(x);
+                etatActuel.dernierPointY = Number(y);
+
+                return etatActuel;
+            }
+
+            function propagerMemoire(etatActuel, cycles) {
+                if (!etatActuel.ouvert) return etatActuel;
+
+                const tours = Math.max(1, cycles | 0);
+
+                for (let t = 0; t < tours; t += 1) {
+                    const prochainA = creerMemoire();
+                    const prochainB = creerMemoire();
+
+                    for (let i = 0; i < TAILLE; i += 1) {
+                        const idx = BigInt(i);
+
+                        const a = etatActuel.memoireA[i] & MASQUE_64;
+                        const b = etatActuel.memoireB[i] & MASQUE_64;
+
+                        const ag = etatActuel.memoireA[(i + TAILLE - 1) % TAILLE] & MASQUE_64;
+                        const ad = etatActuel.memoireA[(i + 1) % TAILLE] & MASQUE_64;
+                        const bg = etatActuel.memoireB[(i + TAILLE - 1) % TAILLE] & MASQUE_64;
+                        const bd = etatActuel.memoireB[(i + 1) % TAILLE] & MASQUE_64;
+
+                        const coeurA =
+                            a ^
+                            rotationG64(ag ^ bg ^ idx, (idx * 3n + 1n) & 63n) ^
+                            rotationD64(ad ^ b ^ etatActuel.graineA, (idx * 5n + 3n) & 63n);
+
+                        const coeurB =
+                            b ^
+                            rotationD64(bg ^ ag ^ idx, (idx * 7n + 5n) & 63n) ^
+                            rotationG64(bd ^ a ^ etatActuel.graineB, (idx * 11n + 7n) & 63n);
+
+                        prochainA[i] = coeurA & MASQUE_64;
+                        prochainB[i] = coeurB & MASQUE_64;
+                    }
+
+                    etatActuel.memoireA = prochainA;
+                    etatActuel.memoireB = prochainB;
+                }
+
+                return etatActuel;
+            }
+
+            function calculerRails(etatActuel) {
+                let railA = etatActuel.graineA;
+                let railB = etatActuel.graineB;
+
+                for (let i = 0; i < TAILLE; i += 1) {
+                    const idx = BigInt(i);
+                    const a = etatActuel.memoireA[i] & MASQUE_64;
+                    const b = etatActuel.memoireB[i] & MASQUE_64;
+
+                    railA = rotationG64((railA ^ a ^ idx) & MASQUE_64, (idx * 7n + 1n) & 63n);
+                    railA = (railA + rotationD64(b ^ etatActuel.graineB, (idx * 3n + 5n) & 63n)) & MASQUE_64;
+
+                    railB = rotationD64((railB ^ b ^ (idx << 1n)) & MASQUE_64, (idx * 5n + 9n) & 63n);
+                    railB = (railB + rotationG64(a ^ etatActuel.graineA, (idx * 11n + 7n) & 63n)) & MASQUE_64;
+                }
+
+                railA ^= etatActuel.impulsions;
+                railB ^= (etatActuel.silence << 9n);
+
+                return { a: railA & MASQUE_64, b: railB & MASQUE_64 };
+            }
+
+            function calculerPhi(etatActuel, railAInit, railBInit) {
+                let a = railAInit & MASQUE_64;
+                let b = railBInit & MASQUE_64;
+                let phi = "";
+                let somme = 0n;
+
+                for (let j = 0; j < 128; j += 1) {
+                    const idx = BigInt(j);
+                    const chiffre = Number((a ^ rotationG64(b, idx) ^ idx) & 7n);
+                    phi += ALPHABET[chiffre];
+                    somme += BigInt(chiffre);
+
+                    const prochainA = rotationG64((a ^ b ^ etatActuel.graineA ^ idx) & MASQUE_64, (idx * 3n + 1n) & 63n);
+                    const prochainB = rotationD64((b ^ a ^ etatActuel.graineB ^ (idx << 1n)) & MASQUE_64, (idx * 5n + 7n) & 63n);
+
+                    a = prochainA;
+                    b = prochainB;
+                }
+
+                return { phi, somme };
+            }
+
+            function calculerMesures(etatActuel, rails, resPhi) {
+                let accords = 0n;
+                let actifs = 0n;
+
+                for (let i = 0; i < TAILLE; i += 1) {
+                    const a0 = etatActuel.memoireA[i] & 7n;
+                    const a1 = etatActuel.memoireA[(i + 1) % TAILLE] & 7n;
+                    const b0 = etatActuel.memoireB[i] & 7n;
+                    const b1 = etatActuel.memoireB[(i + 1) % TAILLE] & 7n;
+
+                    if (a0 === a1) accords += 1n;
+                    if (b0 === b1) accords += 1n;
+
+                    if ((etatActuel.memoireA[i] & MASQUE_64) !== 0n || (etatActuel.memoireB[i] & MASQUE_64) !== 0n) {
+                        actifs += 1n;
+                    }
+                }
+
+                let pente = "GENÈSE";
+                if (etatActuel.derniereSomme !== 0n) {
+                    if (resPhi.somme > etatActuel.derniereSomme) pente = "ÉLÉVATION";
+                    else if (resPhi.somme < etatActuel.derniereSomme) pente = "DESCENTE";
+                    else pente = "STASE";
+                }
+
+                return {
+                    accords,
+                    dispersion: actifs,
+                    pente,
+                    ecartRails: hex16((rails.a ^ rails.b) & MASQUE_64)
+                };
+            }
+
+            function sceller(etatActuel) {
+                if (!etatActuel.ouvert) return null;
+
+                const rails = calculerRails(etatActuel);
+                const resPhi = calculerPhi(etatActuel, rails.a, rails.b);
+                const mesures = calculerMesures(etatActuel, rails, resPhi);
+
+                return {
+                    phi: resPhi.phi,
+                    somme: resPhi.somme,
+                    rails,
+                    mesures,
+                    impulsions: etatActuel.impulsions,
+                    silence: etatActuel.silence,
+                    sig: resPhi.phi.slice(0, 16) + "…" + resPhi.phi.slice(112),
+                    seed: hex16(etatActuel.graineA) + ":" + hex16(etatActuel.graineB)
+                };
+            }
+
+            function afficherScellement(resultat) {
+                if (!resultat) return;
+
+                vue.phiRaw.textContent = blocsTexte(resultat.phi, 32);
+                vue.metAccords.textContent = resultat.mesures.accords.toString() + " / 256";
+                vue.metDispersion.textContent = resultat.mesures.dispersion.toString() + " / 128";
+                vue.metSilence.textContent = resultat.silence.toString() + " cycles";
+                vue.metImp.textContent = resultat.impulsions.toString();
+                vue.metPente.textContent = resultat.mesures.pente;
+                vue.metEcart.textContent = resultat.mesures.ecartRails;
+                vue.metRa.textContent = hex16(resultat.rails.a);
+                vue.metRb.textContent = hex16(resultat.rails.b);
+                vue.metSig.textContent = resultat.sig;
+                vue.metSeed.textContent = resultat.seed;
+            }
+
+            function projeterMemoire(etatActuel) {
+                dimensionnerCanvas();
+                effacerCanvas();
+
+                const w = vue.canvas.width;
+                const h = vue.canvas.height;
+                const milieu = (h / 2) | 0;
+                const bandeHaut = (h / 4) | 0;
+                const bandeBas = ((h * 3) / 4) | 0;
+
+                vue.ctx.strokeStyle = "rgba(255,255,255,0.08)";
+                vue.ctx.beginPath();
+                vue.ctx.moveTo(0, milieu);
+                vue.ctx.lineTo(w, milieu);
+                vue.ctx.stroke();
+
+                vue.ctx.beginPath();
+                vue.ctx.moveTo(0, bandeHaut);
+                vue.ctx.lineTo(w, bandeHaut);
+                vue.ctx.moveTo(0, bandeBas);
+                vue.ctx.lineTo(w, bandeBas);
+                vue.ctx.stroke();
+
+                for (let i = 0; i < TAILLE; i += 1) {
+                    const x = (((i + 1) * w) / (TAILLE + 1)) | 0;
+
+                    const a = etatActuel.memoireA[i] & MASQUE_64;
+                    const b = etatActuel.memoireB[i] & MASQUE_64;
+
+                    const ampA = Number(a & 255n) % Math.max(1, bandeHaut - 10);
+                    const ampB = Number(b & 255n) % Math.max(1, h - bandeBas - 10);
+
+                    const yA = bandeHaut - ampA;
+                    const yB = bandeBas + ampB;
+
+                    vue.ctx.strokeStyle = "rgba(0, 76, 76, 0.18)";
+                    vue.ctx.beginPath();
+                    vue.ctx.moveTo(x, milieu);
+                    vue.ctx.lineTo(x, yA);
+                    vue.ctx.stroke();
+
+                    vue.ctx.beginPath();
+                    vue.ctx.moveTo(x, milieu);
+                    vue.ctx.lineTo(x, yB);
+                    vue.ctx.stroke();
+
+                    vue.ctx.fillStyle = "rgba(0,255,255,0.60)";
+                    vue.ctx.fillRect(x, yA, 2, 2);
+
+                    vue.ctx.fillStyle = "rgba(255,215,0,0.55)";
+                    vue.ctx.fillRect(x, yB, 2, 2);
+
+                    const jonction = Number((a ^ b) & 127n);
+                    const yJ = milieu - 32 + (jonction % 64);
+                    vue.ctx.fillStyle = "rgba(255,255,255,0.20)";
+                    vue.ctx.fillRect(x, yJ, 1, 1);
+                }
+
+                const rails = calculerRails(etatActuel);
+
+                vue.ctx.fillStyle = "#7df9ff";
+                vue.ctx.fillText("RAIL A " + hex16(rails.a), 10, 16);
+
+                vue.ctx.fillStyle = "#ffd700";
+                vue.ctx.fillText("RAIL B " + hex16(rails.b), 10, h - 10);
+            }
+
+            function afficherEtatComplet() {
+                if (etat.ouvert) {
+                    vue.gateZone.classList.add("hidden");
+                    vue.coreDisplay.classList.remove("hidden");
+                    vue.runBtn.disabled = false;
+                    vue.propBtn.disabled = false;
+                    vue.reproBtn.disabled = false;
+                    vue.saveBtn.disabled = false;
+                    vue.exportBtn.disabled = false;
+                    vue.etatLigne.textContent = "STATUT : JONCTION OUVERTE — " + etat.identite.toUpperCase();
+                    vue.metSeed.textContent = hex16(etat.graineA) + ":" + hex16(etat.graineB);
+                    vue.nexusId.value = etat.identite || "";
+
+                    const resultat = sceller(etat);
+                    afficherScellement(resultat);
+                    projeterMemoire(etat);
+                } else {
+                    vue.gateZone.classList.remove("hidden");
+                    vue.coreDisplay.classList.add("hidden");
+                    vue.runBtn.disabled = true;
+                    vue.propBtn.disabled = true;
+                    vue.reproBtn.disabled = true;
+                    vue.saveBtn.disabled = true;
+                    vue.exportBtn.disabled = true;
+                    vue.etatLigne.textContent = "STATUT : ATTENTE DE JONCTION";
+                    vue.phiRaw.textContent = "--";
+                    vue.metAccords.textContent = "--";
+                    vue.metDispersion.textContent = "--";
+                    vue.metSilence.textContent = "--";
+                    vue.metImp.textContent = "--";
+                    vue.metPente.textContent = "--";
+                    vue.metEcart.textContent = "--";
+                    vue.metRa.textContent = "--";
+                    vue.metRb.textContent = "--";
+                    vue.metSig.textContent = "--";
+                    vue.metSeed.textContent = "--";
+                    effacerCanvas();
+                }
+
+                rendreJournal();
+                vue.etatFichier.textContent = etat.dernierNomEtat
+                    ? "ÉTAT : " + etat.dernierNomEtat
+                    : "AUCUN ÉTAT CHARGÉ";
+            }
+
+            function traiterEntree(entree) {
+                if (!etat.ouvert) return;
+
+                assimilerEntree(etat, entree);
+                propagerMemoire(etat, 1);
+                projeterMemoire(etat);
+
+                ajouterJournal(
+                    "[ENTRÉE] canal:" + entree.canal +
+                    " x:" + entree.x +
+                    " y:" + entree.y +
+                    " code:" + entree.code +
+                    " imp:" + etat.impulsions.toString()
+                );
+
+                sauvegarderLocalement();
+            }
+
+            function appliquerScellement() {
+                if (!etat.ouvert) return;
+
+                const resultat = sceller(etat);
+                afficherScellement(resultat);
+
+                etat.derniereSomme = resultat.somme;
+                etat.dernierPhi = resultat.phi;
+
+                ajouterJournal(
+                    "[SCELLEMENT] Φ:" + resultat.phi.slice(0, 16) +
+                    " | ACC:" + resultat.mesures.accords.toString() +
+                    " | ACT:" + resultat.mesures.dispersion.toString() +
+                    " | IMP:" + resultat.impulsions.toString() +
+                    " | PENTE:" + resultat.mesures.pente
+                );
+
+                sauvegarderLocalement();
+            }
+
+            function ouvrirJonction() {
+                const identite = normaliserTexte(vue.nexusId.value);
+                const cle = normaliserTexte(vue.staseKey.value);
+
+                if (!identite || !cle) {
+                    vue.etatLigne.textContent = "STATUT : IDENTITÉ ET GRAINE REQUISES";
+                    return;
+                }
+
+                const g = melangerTexte(cle + "|" + identite);
+                etat = creerEtat();
+                etat.ouvert = true;
+                etat.identite = identite;
+                etat.graineA = g.a;
+                etat.graineB = g.b;
+                etat.dernierNomEtat = "LOCAL";
+
+                ajouterJournal("[OUVERTURE] " + identite.toUpperCase());
+                afficherEtatComplet();
+                sauvegarderLocalement();
+            }
+
+            function positionCanvas(evt) {
+                const r = vue.canvas.getBoundingClientRect();
+                return {
+                    x: (evt.clientX - r.left) | 0,
+                    y: (evt.clientY - r.top) | 0
+                };
+            }
+
+            function serialiserBigInt(valeur) {
+                if (typeof valeur === "bigint") {
+                    return { __bigint__: valeur.toString() };
+                }
+                if (Array.isArray(valeur)) {
+                    return valeur.map(serialiserBigInt);
+                }
+                if (valeur && typeof valeur === "object") {
+                    const sortie = {};
+                    for (const cle of Object.keys(valeur)) {
+                        sortie[cle] = serialiserBigInt(valeur[cle]);
+                    }
+                    return sortie;
+                }
+                return valeur;
+            }
+
+            function deserialiserBigInt(valeur) {
+                if (Array.isArray(valeur)) {
+                    return valeur.map(deserialiserBigInt);
+                }
+                if (valeur && typeof valeur === "object") {
+                    if (Object.prototype.hasOwnProperty.call(valeur, "__bigint__")) {
+                        return BigInt(valeur.__bigint__);
+                    }
+                    const sortie = {};
+                    for (const cle of Object.keys(valeur)) {
+                        sortie[cle] = deserialiserBigInt(valeur[cle]);
+                    }
+                    return sortie;
+                }
+                return valeur;
+            }
+
+            function fabriquerEtatExportable() {
+                return {
+                    meta: {
+                        format: "VORTHENIX_ETAT",
+                        version: "9.1",
+                        date_iso: new Date().toISOString()
+                    },
+                    etat: serialiserBigInt(etat)
+                };
+            }
+
+            function chargerEtatDepuisObjet(objet, nom) {
+                if (!objet || typeof objet !== "object") return false;
+                if (!objet.meta || objet.meta.format !== "VORTHENIX_ETAT") return false;
+                if (!objet.etat) return false;
+
+                const charge = deserialiserBigInt(objet.etat);
+
+                if (!Array.isArray(charge.memoireA) || !Array.isArray(charge.memoireB)) return false;
+                if (charge.memoireA.length !== TAILLE || charge.memoireB.length !== TAILLE) return false;
+
+                etat = creerEtat();
+                etat.version = "9.1";
+                etat.ouvert = !!charge.ouvert;
+                etat.identite = charge.identite || "";
+                etat.graineA = typeof charge.graineA === "bigint" ? charge.graineA : 0n;
+                etat.graineB = typeof charge.graineB === "bigint" ? charge.graineB : 0n;
+                etat.memoireA = charge.memoireA.map(v => typeof v === "bigint" ? (v & MASQUE_64) : 0n);
+                etat.memoireB = charge.memoireB.map(v => typeof v === "bigint" ? (v & MASQUE_64) : 0n);
+                etat.impulsions = typeof charge.impulsions === "bigint" ? charge.impulsions : 0n;
+                etat.silence = typeof charge.silence === "bigint" ? charge.silence : 0n;
+                etat.derniereSomme = typeof charge.derniereSomme === "bigint" ? charge.derniereSomme : 0n;
+                etat.dernierPhi = typeof charge.dernierPhi === "string" ? charge.dernierPhi : "";
+                etat.dernierPointX = Number(charge.dernierPointX || 0);
+                etat.dernierPointY = Number(charge.dernierPointY || 0);
+                etat.journal = Array.isArray(charge.journal) ? charge.journal.slice(0, LIMITE_JOURNAL) : [];
+                etat.dernierNomEtat = nom || "IMPORTÉ";
+
+                afficherEtatComplet();
+                sauvegarderLocalement();
+                ajouterJournal("[CHARGEMENT] " + etat.dernierNomEtat);
+
+                return true;
+            }
+
+            function sauvegarderLocalement() {
+                try {
+                    const exportable = fabriquerEtatExportable();
+                    localStorage.setItem(CLE_PERSISTANCE, JSON.stringify(exportable));
+                } catch (e) {
+                    ajouterJournal("[ERREUR] sauvegarde locale impossible");
+                }
+            }
+
+            function chargerDepuisLocal() {
+                try {
+                    const brut = localStorage.getItem(CLE_PERSISTANCE);
+                    if (!brut) return false;
+                    const objet = JSON.parse(brut);
+                    return chargerEtatDepuisObjet(objet, "LOCAL");
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            function exporterEtat() {
+                const exportable = fabriquerEtatExportable();
+                const texte = JSON.stringify(exportable, null, 2);
+                const blob = new Blob([texte], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "vorthenix_etat_v91.json";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+
+                ajouterJournal("[EXPORT] vorthenix_etat_v91.json");
+                sauvegarderLocalement();
+            }
+
+            function purgerTout() {
+                etat = creerEtat();
+                localStorage.removeItem(CLE_PERSISTANCE);
+
+                vue.nexusId.value = "";
+                vue.staseKey.value = "";
+                afficherEtatComplet();
+                vue.etatFichier.textContent = "AUCUN ÉTAT CHARGÉ";
+            }
+
+            vue.ouvrirBtn.addEventListener("click", ouvrirJonction);
+
+            vue.runBtn.addEventListener("click", () => {
+                if (!etat.ouvert) return;
+                propagerMemoire(etat, 2);
+                projeterMemoire(etat);
+                appliquerScellement();
+            });
+
+            vue.propBtn.addEventListener("click", () => {
+                if (!etat.ouvert) return;
+                propagerMemoire(etat, 3);
+                projeterMemoire(etat);
+                ajouterJournal("[PROPAGATION] cycles:3");
+                sauvegarderLocalement();
+            });
+
+            vue.reproBtn.addEventListener("click", () => {
+                if (!etat.ouvert) return;
+                projeterMemoire(etat);
+                ajouterJournal("[REPROJECTION]");
+                sauvegarderLocalement();
+            });
+
+            vue.saveBtn.addEventListener("click", () => {
+                sauvegarderLocalement();
+                ajouterJournal("[SAUVEGARDE] locale");
+            });
+
+            vue.exportBtn.addEventListener("click", exporterEtat);
+
+            vue.importBtn.addEventListener("click", () => {
+                vue.importFile.value = "";
+                vue.importFile.click();
+            });
+
+            vue.importFile.addEventListener("change", async (evt) => {
+                const fichier = evt.target.files && evt.target.files[0];
+                if (!fichier) return;
+
+                try {
+                    const texte = await fichier.text();
+                    const objet = JSON.parse(texte);
+                    const ok = chargerEtatDepuisObjet(objet, fichier.name);
+                    if (!ok) {
+                        vue.etatLigne.textContent = "STATUT : FICHIER D'ÉTAT INVALIDE";
+                    }
+                } catch (e) {
+                    vue.etatLigne.textContent = "STATUT : IMPORT IMPOSSIBLE";
+                }
+            });
+
+            vue.canvas.addEventListener("pointerdown", (evt) => {
+                const p = positionCanvas(evt);
+                traiterEntree({ x: p.x, y: p.y, canal: 1, code: 101 });
+            });
+
+            vue.canvas.addEventListener("pointermove", (evt) => {
+                if ((evt.buttons & 1) !== 1) return;
+                const p = positionCanvas(evt);
+                traiterEntree({ x: p.x, y: p.y, canal: 2, code: 131 });
+            });
+
+            window.addEventListener("keydown", (evt) => {
+                if (!etat.ouvert) return;
+
+                const code = evt.key && evt.key.length ? (evt.key.codePointAt(0) || 0) : 0;
+                const x = Number((etat.impulsions * 17n + BigInt(code)) % BigInt(Math.max(1, vue.canvas.width)));
+                const y = Number((BigInt(code) * 23n + etat.impulsions) % BigInt(Math.max(1, vue.canvas.height)));
+
+                traiterEntree({ x, y, canal: 3, code });
+            });
+
+            window.addEventListener("resize", () => {
+                dimensionnerCanvas();
+                effacerCanvas();
+                if (etat.ouvert) projeterMemoire(etat);
+            });
+
+            window.setInterval(() => {
+                if (!etat.ouvert) return;
+                etat.silence += 1n;
+                sauvegarderLocalement();
+            }, 120);
+
+            window.addEventListener("beforeunload", sauvegarderLocalement);
+
+            dimensionnerCanvas();
+            effacerCanvas();
+
+            const charge = chargerDepuisLocal();
+            if (!charge) {
+                afficherEtatComplet();
+            }
+        })();
     </script>
 </body>
-</html>
+                                                                                                                        </html>
